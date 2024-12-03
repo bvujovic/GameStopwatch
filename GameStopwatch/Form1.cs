@@ -10,6 +10,11 @@ namespace GameStopwatch
         }
 
         private DateTime gameStarted = DateTime.Now;
+        private int minutesDisplayed = 0;
+        private int gamePlayedAlarm = 20; // (minutes) sound will be heard after spec amount of time
+        private DateTime? pauseStarted = null;
+        private TimeSpan pausedTime;
+        private bool pauseKeyPressed = false;
 
         // Ovo je osnova za reagovanje na pritiskanje tastera i u slucaju da prozor nije u fokusu
         //* https://stackoverflow.com/questions/63663036/how-to-receive-key-presses-when-out-of-focus-c-sharp-forms
@@ -34,7 +39,8 @@ namespace GameStopwatch
             // Bounce
             new X(Keys.RShiftKey, @"Sounds\Male_Saying_Arm.wav", 21), // Red Armour
             // Dungeon
-            new X(Keys.Delete, @"c:\Windows\Media\Windows Hardware Fail.wav", 30), // BFG Ammo
+            //new X(Keys.Delete, @"c:\Windows\Media\Windows Hardware Fail.wav", 30), // BFG Ammo
+            new X(Keys.Delete, @"Sounds\Male_Saying_Ammo.wav", 30), // BFG Ammo
             new X(Keys.End, @"Sounds\Male_Saying_Arm.wav", 20), // Red Armour
             new X(Keys.PageDown, @"c:\Windows\Media\Windows Hardware Insert.wav", 60+45), // 4X
         ];
@@ -42,24 +48,64 @@ namespace GameStopwatch
         private static void PlayPressSound()
         {
             using var soundPlayer = new System.Media.SoundPlayer(@"c:\Windows\Media\ringout.wav");
-            //using var soundPlayer = new System.Media.SoundPlayer(@"Sounds\Male_Saying_Arm.wav");
             soundPlayer.Play();
         }
 
+        //private TimeSpan TimePassed(DateTime start)
+        //{
+        //    return (DateTime.Now - start) - pausedTime;
+        //}
+
         private void Tim_Tick(object sender, EventArgs e)
         {
-            // dosta igranja
-            if ((DateTime.Now - gameStarted).TotalMinutes >= 20)
+            // pauza: pocetak/kraj
+            if (IsKeyPushedDown(Keys.Escape))
             {
-                gameStarted = DateTime.MaxValue;
+                if (!pauseKeyPressed)
+                {
+                    if (!pauseStarted.HasValue) // pause: start
+                    {
+                        pauseStarted = DateTime.Now;
+                        //System.Diagnostics.Debug.WriteLine(pausedTime);
+                    }
+                    else // pause: end
+                    {
+                        pausedTime = DateTime.Now - pauseStarted.Value;
+                        //System.Diagnostics.Debug.WriteLine("paused: " + pausedTime + "@ " + DateTime.Now);
+                        gameStarted += pausedTime;
+                        foreach (X x in xs.Where(it => it.Start.HasValue))
+                            x.Start += pausedTime;
+                        pauseStarted = null;
+                    }
+                }
+                pauseKeyPressed = true;
+                PlayPressSound();   
+            }
+            else
+                pauseKeyPressed = false;
+            if (pauseStarted.HasValue)
+                return;
+
+            int minutes = (int)(DateTime.Now - gameStarted).TotalMinutes;
+            //int minutes = (int)TimePassed(gameStarted).TotalMinutes;
+            if (minutesDisplayed != minutes)
+                lblMinutes.Text = $"{minutesDisplayed = minutes} minutes";
+
+            // dosta igranja
+            if (minutes >= gamePlayedAlarm)
+            {
+                gamePlayedAlarm += 10;
                 using var soundPlayer = new System.Media.SoundPlayer(@"c:\Windows\Media\Alarm04.wav");
                 soundPlayer.Play();
             }
 
             // ponisti sve tajmere
             if (IsKeyPushedDown(Keys.Tab))
+            {
                 foreach (X x in xs)
                     x.Start = null;
+                PlayPressSound();
+            }
 
             foreach (X x in xs)
             {
@@ -73,8 +119,9 @@ namespace GameStopwatch
                     }
                 }
                 else
-                // ako je vreme tajmera isteklo - pusti odgovarajuci zvuk
+                    // ako je vreme tajmera isteklo - pusti odgovarajuci zvuk
                     if ((DateTime.Now - x.Start.Value).TotalSeconds >= x.Secs)
+                    //if (TimePassed(x.Start.Value).TotalSeconds >= x.Secs)
                 {
                     using (var soundPlayer = new System.Media.SoundPlayer(x.Sound))
                         soundPlayer.Play();

@@ -30,6 +30,7 @@
         {
             components = new System.ComponentModel.Container();
             tim = new System.Windows.Forms.Timer(components);
+            lblMinutes = new Label();
             SuspendLayout();
             // 
             // tim
@@ -38,20 +39,33 @@
             tim.Interval = 50;
             tim.Tick += Tim_Tick;
             // 
+            // lblMinutes
+            // 
+            lblMinutes.AutoSize = true;
+            lblMinutes.Font = new Font("Segoe UI", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblMinutes.Location = new Point(12, 9);
+            lblMinutes.Name = "lblMinutes";
+            lblMinutes.Size = new Size(104, 30);
+            lblMinutes.TabIndex = 0;
+            lblMinutes.Text = "0 minutes";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(340, 54);
+            Controls.Add(lblMinutes);
             Name = "Form1";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Game Stopwatch";
             WindowState = FormWindowState.Minimized;
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
 
         private System.Windows.Forms.Timer tim;
+        private Label lblMinutes;
     }
 }
