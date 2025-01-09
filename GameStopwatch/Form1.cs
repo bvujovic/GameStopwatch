@@ -1,5 +1,5 @@
 using System.Runtime.InteropServices;
-
+using System.Speech.Synthesis;
 namespace GameStopwatch
 {
     public partial class Form1 : Form
@@ -8,6 +8,34 @@ namespace GameStopwatch
         {
             InitializeComponent();
         }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            cmbVoices.SelectedIndex = 1;
+
+            //synth.SpeakAsync("It's time");
+
+            //foreach (var v in synth.GetInstalledVoices())
+            //    Console.WriteLine(v);
+
+            //using var fs = File.Create("C:\\Users\\bvnet\\Downloads\\x.wav");
+            //var synthFormat = new SpeechAudioFormatInfo(11025, AudioBitsPerSample.Eight, AudioChannel.Mono);
+            //    //EncodingFormat.Pcm,
+            //    //11025, 16, 1, 16000, 2, null);
+            //synth.SetOutputToAudioStream(fs, synthFormat);
+        }
+
+        private void CmbVoices_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (cmbVoices.SelectedItem != null)
+                    synth.SelectVoice((string)cmbVoices.SelectedItem);
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+        }
+
+        private static readonly SpeechSynthesizer synth = new() { Volume = 100, Rate = 0 };
 
         private DateTime gameStarted = DateTime.Now;
         private int minutesDisplayed = 0;
@@ -36,13 +64,13 @@ namespace GameStopwatch
 
         readonly List<X> xs =
         [
-            // Bounce
-            new X(Keys.RShiftKey, @"Sounds\Male_Saying_Arm.wav", 21), // Red Armour
-            // Dungeon
-            //new X(Keys.Delete, @"c:\Windows\Media\Windows Hardware Fail.wav", 30), // BFG Ammo
-            new X(Keys.Delete, @"Sounds\Male_Saying_Ammo.wav", 30), // BFG Ammo
-            new X(Keys.End, @"Sounds\Male_Saying_Arm.wav", 20), // Red Armour
-            new X(Keys.PageDown, @"c:\Windows\Media\Windows Hardware Insert.wav", 60+45), // 4X
+            // Bounce Map
+            new X(Keys.RShiftKey, "Shield", 21), // Red Armour
+
+            // Dungeon Map
+            new X(Keys.Delete, "Munition", 32), // BFG Ammo
+            new X(Keys.End, "Shield", 20), // Red Armour
+            new X(Keys.PageDown, "Quad damage", 60+45), // 4X
         ];
 
         private static void PlayPressSound()
@@ -51,23 +79,20 @@ namespace GameStopwatch
             soundPlayer.Play();
         }
 
-        //private TimeSpan TimePassed(DateTime start)
-        //{
-        //    return (DateTime.Now - start) - pausedTime;
-        //}
-
         private void Tim_Tick(object sender, EventArgs e)
         {
+            // TEST
+            //foreach (var k in Enum.GetValues<Keys>())
+            //    if (IsKeyPushedDown(k))
+            //        System.Diagnostics.Debug.WriteLine(k);
+
             // pauza: pocetak/kraj
             if (IsKeyPushedDown(Keys.Escape))
             {
                 if (!pauseKeyPressed)
                 {
                     if (!pauseStarted.HasValue) // pause: start
-                    {
                         pauseStarted = DateTime.Now;
-                        //System.Diagnostics.Debug.WriteLine(pausedTime);
-                    }
                     else // pause: end
                     {
                         pausedTime = DateTime.Now - pauseStarted.Value;
@@ -79,7 +104,7 @@ namespace GameStopwatch
                     }
                 }
                 pauseKeyPressed = true;
-                PlayPressSound();   
+                PlayPressSound();
             }
             else
                 pauseKeyPressed = false;
@@ -95,12 +120,11 @@ namespace GameStopwatch
             if (minutes >= gamePlayedAlarm)
             {
                 gamePlayedAlarm += 10;
-                using var soundPlayer = new System.Media.SoundPlayer(@"c:\Windows\Media\Alarm04.wav");
-                soundPlayer.Play();
+                synth.Speak("It's time");
             }
 
             // ponisti sve tajmere
-            if (IsKeyPushedDown(Keys.Tab))
+            if (IsKeyPushedDown(Keys.OemPipe))
             {
                 foreach (X x in xs)
                     x.Start = null;
@@ -121,10 +145,8 @@ namespace GameStopwatch
                 else
                     // ako je vreme tajmera isteklo - pusti odgovarajuci zvuk
                     if ((DateTime.Now - x.Start.Value).TotalSeconds >= x.Secs)
-                    //if (TimePassed(x.Start.Value).TotalSeconds >= x.Secs)
                 {
-                    using (var soundPlayer = new System.Media.SoundPlayer(x.Sound))
-                        soundPlayer.Play();
+                    synth.Speak(x.Sound);
                     x.Start = null;
                 }
             }

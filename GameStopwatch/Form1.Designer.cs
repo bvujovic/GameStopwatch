@@ -29,9 +29,21 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
+            Label label1;
             tim = new System.Windows.Forms.Timer(components);
             lblMinutes = new Label();
+            cmbVoices = new ComboBox();
+            label1 = new Label();
             SuspendLayout();
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(167, 14);
+            label1.Name = "label1";
+            label1.Size = new Size(35, 15);
+            label1.TabIndex = 2;
+            label1.Text = "Voice";
             // 
             // tim
             // 
@@ -43,22 +55,36 @@
             // 
             lblMinutes.AutoSize = true;
             lblMinutes.Font = new Font("Segoe UI", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            lblMinutes.Location = new Point(12, 9);
+            lblMinutes.Location = new Point(12, 19);
             lblMinutes.Name = "lblMinutes";
             lblMinutes.Size = new Size(104, 30);
             lblMinutes.TabIndex = 0;
             lblMinutes.Text = "0 minutes";
             // 
+            // cmbVoices
+            // 
+            cmbVoices.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbVoices.FormattingEnabled = true;
+            cmbVoices.Items.AddRange(new object[] { "Microsoft David Desktop", "Microsoft Zira Desktop" });
+            cmbVoices.Location = new Point(167, 32);
+            cmbVoices.Name = "cmbVoices";
+            cmbVoices.Size = new Size(161, 23);
+            cmbVoices.TabIndex = 1;
+            cmbVoices.SelectedIndexChanged += CmbVoices_SelectedIndexChanged;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(340, 54);
+            ClientSize = new Size(340, 67);
+            Controls.Add(label1);
+            Controls.Add(cmbVoices);
             Controls.Add(lblMinutes);
             Name = "Form1";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Game Stopwatch";
             WindowState = FormWindowState.Minimized;
+            Load += Form1_Load;
             ResumeLayout(false);
             PerformLayout();
         }
@@ -67,5 +93,7 @@
 
         private System.Windows.Forms.Timer tim;
         private Label lblMinutes;
+        private ComboBox cmbVoices;
+        private Label label1;
     }
 }
