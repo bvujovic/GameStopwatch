@@ -5,4 +5,4 @@ On keypress event timer is started and after specified time the sound (voice com
 That way player can be prepared to collect items that appear on some schedule.
 
 
-![Game Stopwatch - Main Window](MainForm.png)
+![Game Stopwatch - Main Window](ScreenShots/MainForm.png)
