@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Speech.Synthesis;
 namespace GameStopwatch
@@ -11,18 +12,32 @@ namespace GameStopwatch
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            cmbVoices.SelectedIndex = 1;
+            //cmbVoices.SelectedIndex = 1;
+            cmbVoices.SelectedIndex = Properties.Settings.Default.IdxVoice;
+            minutesToday = Properties.Settings.Default.MinutesToday;
+            DisplayMinutes(CalcMinutes());
 
             //synth.SpeakAsync("It's time");
 
             //foreach (var v in synth.GetInstalledVoices())
             //    Console.WriteLine(v);
 
-            //using var fs = File.Create("C:\\Users\\bvnet\\Downloads\\x.wav");
-            //var synthFormat = new SpeechAudioFormatInfo(11025, AudioBitsPerSample.Eight, AudioChannel.Mono);
-            //    //EncodingFormat.Pcm,
-            //    //11025, 16, 1, 16000, 2, null);
-            //synth.SetOutputToAudioStream(fs, synthFormat);
+            //* Save sound to a file (ChatGPT)
+            //using SpeechSynthesizer synth = new();
+            //synth.SelectVoiceByHints(VoiceGender.Neutral); // Set voice to male
+            //synth.Rate = 1; // Set the speed
+            //synth.Volume = 100; // Set volume to 100%
+            //string outputFilePath = "shield.wav";
+            //synth.SetOutputToWaveFile(outputFilePath);
+            //synth.Speak("SHIELD!");
+            //Console.WriteLine($"Speech saved to {outputFilePath}");
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Properties.Settings.Default.IdxVoice = cmbVoices.SelectedIndex;
+            Properties.Settings.Default.MinutesToday = CalcMinutesTotal(CalcMinutes());
+            Properties.Settings.Default.Save();
         }
 
         private void CmbVoices_SelectedIndexChanged(object sender, EventArgs e)
@@ -35,7 +50,7 @@ namespace GameStopwatch
             catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
 
-        private static readonly SpeechSynthesizer synth = new() { Volume = 100, Rate = 0 };
+        private static readonly SpeechSynthesizer synth = new() { Volume = 100, Rate = 3 };
 
         private DateTime gameStarted = DateTime.Now;
         private int minutesDisplayed = 0;
@@ -79,6 +94,17 @@ namespace GameStopwatch
             soundPlayer.Play();
         }
 
+        private static string MinToString(int min)
+        {
+            var m = min % 100;
+            return min + " minute" + (m % 10 == 1 && m != 11 ? "" : "s");
+        }
+
+        private static void SpeakGameTime(int min)
+        {
+            synth.Speak(MinToString(min));
+        }
+
         private void Tim_Tick(object sender, EventArgs e)
         {
             // TEST
@@ -86,13 +112,19 @@ namespace GameStopwatch
             //    if (IsKeyPushedDown(k))
             //        System.Diagnostics.Debug.WriteLine(k);
 
+            //int minutes = (int)(DateTime.Now - gameStarted).TotalMinutes;
+            int minutes = CalcMinutes();
+
             // pauza: pocetak/kraj
             if (IsKeyPushedDown(Keys.Escape))
             {
                 if (!pauseKeyPressed)
                 {
                     if (!pauseStarted.HasValue) // pause: start
+                    {
                         pauseStarted = DateTime.Now;
+                        SpeakGameTime(minutes);
+                    }
                     else // pause: end
                     {
                         pausedTime = DateTime.Now - pauseStarted.Value;
@@ -101,26 +133,27 @@ namespace GameStopwatch
                         foreach (X x in xs.Where(it => it.Start.HasValue))
                             x.Start += pausedTime;
                         pauseStarted = null;
+                        PlayPressSound();
                     }
                 }
                 pauseKeyPressed = true;
-                PlayPressSound();
             }
             else
                 pauseKeyPressed = false;
             if (pauseStarted.HasValue)
                 return;
 
-            int minutes = (int)(DateTime.Now - gameStarted).TotalMinutes;
-            //int minutes = (int)TimePassed(gameStarted).TotalMinutes;
             if (minutesDisplayed != minutes)
-                lblMinutes.Text = $"{minutesDisplayed = minutes} minutes";
+                //lblMinutes.Text = $"{minutesDisplayed = minutes} minutes";
+                //lblMinutes.Text = MinToString(minutesDisplayed = minutes);
+                DisplayMinutes(minutesDisplayed = minutes);
 
             // dosta igranja
             if (minutes >= gamePlayedAlarm)
             {
                 gamePlayedAlarm += 10;
-                synth.Speak("It's time");
+                //synth.Speak("It's time");
+                SpeakGameTime(minutes);
             }
 
             // ponisti sve tajmere
@@ -150,6 +183,28 @@ namespace GameStopwatch
                     x.Start = null;
                 }
             }
+        }
+
+        /// <summary>Vreme (min) u aplikaciji pre tekuceg pokretanja.</summary>
+        private int minutesToday;
+
+        /// <summary>Calculate minutes in app. minutesToday do not count.</summary>
+        private int CalcMinutes()
+            => (int)(DateTime.Now - gameStarted).TotalMinutes;
+
+        private int CalcMinutesTotal(int minutesNow)
+            => minutesToday + (chkMinutesToday.Checked ? minutesNow : 0);
+
+        private void DisplayMinutes(int minutesNow)
+        {
+            lblMinutes.Text = MinToString(minutesNow);
+            lblMinutesToday.Text = MinToString(CalcMinutesTotal(minutesNow));
+        }
+
+        private void ChkMinutesToday_CheckedChanged(object sender, EventArgs e)
+        {
+            lblMinutesToday.Enabled = chkMinutesToday.Checked;
+            DisplayMinutes(CalcMinutes());
         }
     }
 }
