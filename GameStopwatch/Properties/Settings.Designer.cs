@@ -38,12 +38,12 @@ namespace GameStopwatch.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int MinutesToday {
+        public int MinutesBefore {
             get {
-                return ((int)(this["MinutesToday"]));
+                return ((int)(this["MinutesBefore"]));
             }
             set {
-                this["MinutesToday"] = value;
+                this["MinutesBefore"] = value;
             }
         }
     }

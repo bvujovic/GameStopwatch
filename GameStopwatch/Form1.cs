@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Speech.Synthesis;
 namespace GameStopwatch
@@ -12,10 +11,9 @@ namespace GameStopwatch
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            //cmbVoices.SelectedIndex = 1;
             cmbVoices.SelectedIndex = Properties.Settings.Default.IdxVoice;
-            minutesToday = Properties.Settings.Default.MinutesToday;
-            DisplayMinutes(CalcMinutes());
+            minutesBefore = Properties.Settings.Default.MinutesBefore;
+            DisplayMinutes();
 
             //synth.SpeakAsync("It's time");
 
@@ -36,7 +34,7 @@ namespace GameStopwatch
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             Properties.Settings.Default.IdxVoice = cmbVoices.SelectedIndex;
-            Properties.Settings.Default.MinutesToday = CalcMinutesTotal(CalcMinutes());
+            Properties.Settings.Default.MinutesBefore = CalcMinutesTotal(CalcMinutes());
             Properties.Settings.Default.Save();
         }
 
@@ -144,8 +142,6 @@ namespace GameStopwatch
                 return;
 
             if (minutesDisplayed != minutes)
-                //lblMinutes.Text = $"{minutesDisplayed = minutes} minutes";
-                //lblMinutes.Text = MinToString(minutesDisplayed = minutes);
                 DisplayMinutes(minutesDisplayed = minutes);
 
             // dosta igranja
@@ -186,25 +182,45 @@ namespace GameStopwatch
         }
 
         /// <summary>Vreme (min) u aplikaciji pre tekuceg pokretanja.</summary>
-        private int minutesToday;
+        private int minutesBefore;
 
-        /// <summary>Calculate minutes in app. minutesToday do not count.</summary>
+        /// <summary>Calculate minutes in app. minutesBefore do not count.</summary>
         private int CalcMinutes()
             => (int)(DateTime.Now - gameStarted).TotalMinutes;
 
         private int CalcMinutesTotal(int minutesNow)
-            => minutesToday + (chkMinutesToday.Checked ? minutesNow : 0);
+            => minutesBefore + (tsmiCountInCurrent.Checked ? minutesNow : 0);
 
         private void DisplayMinutes(int minutesNow)
         {
             lblMinutes.Text = MinToString(minutesNow);
-            lblMinutesToday.Text = MinToString(CalcMinutesTotal(minutesNow));
+            lblMinutesTotal.Text = MinToString(CalcMinutesTotal(minutesNow));
         }
 
-        private void ChkMinutesToday_CheckedChanged(object sender, EventArgs e)
+        private void DisplayMinutes()
+            => DisplayMinutes(CalcMinutes());
+
+        private void TsmiCountInCurrent_CheckedChanged(object sender, EventArgs e)
         {
-            lblMinutesToday.Enabled = chkMinutesToday.Checked;
-            DisplayMinutes(CalcMinutes());
+            lblMinutesTotal.Enabled = tsmiCountInCurrent.Checked;
+            DisplayMinutes();
+        }
+
+        private void TsmiResetTotalTime_Click(object sender, EventArgs e)
+        {
+            minutesBefore = 0;
+            DisplayMinutes();
+        }
+
+        private void TsmiChangeBeforeTime_Click(object sender, EventArgs e)
+        {
+            tim.Stop();
+            var frm = new FrmChangeBeforeTime { MinutesBefore = minutesBefore };
+            if (frm.ShowDialog() == DialogResult.OK)
+                minutesBefore = frm.MinutesBefore;
+            DisplayMinutes();
+            Thread.Sleep(500); // avoid catching Enter or Escape keypresses from frm and making a sound
+            tim.Start();
         }
     }
 }
