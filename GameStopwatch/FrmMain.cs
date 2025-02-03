@@ -1,41 +1,65 @@
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Speech.Synthesis;
 namespace GameStopwatch
 {
-    public partial class Form1 : Form
+    public partial class FrmMain : Form
     {
-        public Form1()
+        public FrmMain()
         {
             InitializeComponent();
         }
 
+        private const string dataSetFileName = "ds.xml";
+        public static Ds Ds { get; set; } = new Ds();
+
+        private bool procAlreadyStarted = false;
+
         private void Form1_Load(object sender, EventArgs e)
         {
-            cmbVoices.SelectedIndex = Properties.Settings.Default.IdxVoice;
-            minutesBefore = Properties.Settings.Default.MinutesBefore;
-            DisplayMinutes();
+            try
+            {
+                if (procAlreadyStarted = Process.GetProcesses().Count(it => it.ProcessName == Process.GetCurrentProcess().ProcessName) > 1)
+                    Close();
 
-            //synth.SpeakAsync("It's time");
+                cmbVoices.SelectedIndex = Properties.Settings.Default.IdxVoice;
+                minutesBefore = Properties.Settings.Default.MinutesBefore;
+                DisplayMinutes();
 
-            //foreach (var v in synth.GetInstalledVoices())
-            //    Console.WriteLine(v);
+                Ds.ReadXml(dataSetFileName);
 
-            //* Save sound to a file (ChatGPT)
-            //using SpeechSynthesizer synth = new();
-            //synth.SelectVoiceByHints(VoiceGender.Neutral); // Set voice to male
-            //synth.Rate = 1; // Set the speed
-            //synth.Volume = 100; // Set volume to 100%
-            //string outputFilePath = "shield.wav";
-            //synth.SetOutputToWaveFile(outputFilePath);
-            //synth.Speak("SHIELD!");
-            //Console.WriteLine($"Speech saved to {outputFilePath}");
+                //synth.SpeakAsync("It's time");
+
+                //foreach (var v in synth.GetInstalledVoices())
+                //    Console.WriteLine(v);
+
+                //* Save sound to a file (ChatGPT)
+                //using SpeechSynthesizer synth = new();
+                //synth.SelectVoiceByHints(VoiceGender.Neutral); // Set voice to male
+                //synth.Rate = 1; // Set the speed
+                //synth.Volume = 100; // Set volume to 100%
+                //string outputFilePath = "shield.wav";
+                //synth.SetOutputToWaveFile(outputFilePath);
+                //synth.Speak("SHIELD!");
+                //Console.WriteLine($"Speech saved to {outputFilePath}");
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (procAlreadyStarted)
+                return;
             Properties.Settings.Default.IdxVoice = cmbVoices.SelectedIndex;
-            Properties.Settings.Default.MinutesBefore = CalcMinutesTotal(CalcMinutes());
+            var min = Properties.Settings.Default.MinutesBefore = CalcMinutesTotal(CalcMinutes());
             Properties.Settings.Default.Save();
+
+            var dm = Ds.DateMinutes.FindByDate(DateTime.Today);
+            if (dm == null)
+                Ds.DateMinutes.AddDateMinutesRow(DateTime.Today, min);
+            else
+                dm.Minutes = min;
+            Ds.WriteXml(dataSetFileName);
         }
 
         private void CmbVoices_SelectedIndexChanged(object sender, EventArgs e)
@@ -219,6 +243,14 @@ namespace GameStopwatch
             if (frm.ShowDialog() == DialogResult.OK)
                 minutesBefore = frm.MinutesBefore;
             DisplayMinutes();
+            Thread.Sleep(500); // avoid catching Enter or Escape keypresses from frm and making a sound
+            tim.Start();
+        }
+
+        private void BtnPastValues_Click(object sender, EventArgs e)
+        {
+            tim.Stop();
+            new FrmPastValues().ShowDialog();
             Thread.Sleep(500); // avoid catching Enter or Escape keypresses from frm and making a sound
             tim.Start();
         }

@@ -1,6 +1,6 @@
 ﻿namespace GameStopwatch
 {
-    partial class Form1
+    partial class FrmMain
     {
         /// <summary>
         ///  Required designer variable.
@@ -40,6 +40,7 @@
             lblMinutes = new Label();
             cmbVoices = new ComboBox();
             lblMinutesTotal = new Label();
+            btnPastValues = new Button();
             label1 = new Label();
             label2 = new Label();
             label3 = new Label();
@@ -142,11 +143,22 @@
             lblMinutesTotal.TabIndex = 4;
             lblMinutesTotal.Text = "0 minutes";
             // 
-            // Form1
+            // btnPastValues
+            // 
+            btnPastValues.Location = new Point(167, 96);
+            btnPastValues.Name = "btnPastValues";
+            btnPastValues.Size = new Size(102, 23);
+            btnPastValues.TabIndex = 6;
+            btnPastValues.Text = "Past values...";
+            btnPastValues.UseVisualStyleBackColor = true;
+            btnPastValues.Click += BtnPastValues_Click;
+            // 
+            // FrmMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(340, 132);
+            Controls.Add(btnPastValues);
             Controls.Add(label3);
             Controls.Add(lblMinutesTotal);
             Controls.Add(label2);
@@ -154,7 +166,7 @@
             Controls.Add(cmbVoices);
             Controls.Add(lblMinutes);
             MaximizeBox = false;
-            Name = "Form1";
+            Name = "FrmMain";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Game Stopwatch";
             FormClosing += Form1_FormClosing;
@@ -175,5 +187,6 @@
         private ToolStripMenuItem tsmiCountInCurrent;
         private ToolStripMenuItem tsmiResetTotalTime;
         private ToolStripMenuItem tsmiChangeBeforeTime;
+        private Button btnPastValues;
     }
 }
