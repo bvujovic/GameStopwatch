@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Chart.js in WebView2</title>
+</head>
+<body>
+    <canvas id="myChart"></canvas>
+    <script>
+    function updateChart(jsonData) {
+            const data = JSON.parse(jsonData);
+            const ctx = document.getElementById('myChart').getContext('2d');
+
+            new Chart(ctx, {
+                type: 'line', // bar/line
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: data.label,
+                        data: data.values,
+                        backgroundColor: 'red'
+                    }]
+                }
+            });
+        }</script>
+</body>
+</html>

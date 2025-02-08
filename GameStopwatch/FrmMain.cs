@@ -24,6 +24,9 @@ namespace GameStopwatch
 
                 cmbVoices.SelectedIndex = Properties.Settings.Default.IdxVoice;
                 minutesBefore = Properties.Settings.Default.MinutesBefore;
+                CurrentDate = Properties.Settings.Default.CurrentDate;
+                if (CurrentDate.Year < 2020)
+                    CurrentDate = DateTime.Today;
                 DisplayMinutes();
 
                 Ds.ReadXml(dataSetFileName);
@@ -51,14 +54,16 @@ namespace GameStopwatch
             if (procAlreadyStarted)
                 return;
             Properties.Settings.Default.IdxVoice = cmbVoices.SelectedIndex;
-            var min = Properties.Settings.Default.MinutesBefore = CalcMinutesTotal(CalcMinutes());
+            //var min = Properties.Settings.Default.MinutesBefore = CalcMinutesTotal(CalcMinutes());
+            Properties.Settings.Default.MinutesBefore = CalcMinutesTotal();
+            Properties.Settings.Default.CurrentDate = CurrentDate;
             Properties.Settings.Default.Save();
 
-            var dm = Ds.DateMinutes.FindByDate(DateTime.Today);
-            if (dm == null)
-                Ds.DateMinutes.AddDateMinutesRow(DateTime.Today, min);
-            else
-                dm.Minutes = min;
+            //var dm = Ds.DateMinutes.FindByDate(DateTime.Today);
+            //if (dm == null)
+            //    Ds.DateMinutes.AddDateMinutesRow(DateTime.Today, min);
+            //else
+            //    dm.Minutes = min;
             Ds.WriteXml(dataSetFileName);
         }
 
@@ -205,12 +210,26 @@ namespace GameStopwatch
             }
         }
 
+        private DateTime currentDate;
+        public DateTime CurrentDate
+        {
+            get { return currentDate; }
+            set
+            {
+                currentDate = value;
+                lblCurrentDate.Text = value.ToShortDateString();
+            }
+        }
+
         /// <summary>Vreme (min) u aplikaciji pre tekuceg pokretanja.</summary>
         private int minutesBefore;
 
         /// <summary>Calculate minutes in app. minutesBefore do not count.</summary>
         private int CalcMinutes()
             => (int)(DateTime.Now - gameStarted).TotalMinutes;
+
+        private int CalcMinutesTotal()
+            => CalcMinutesTotal(CalcMinutes());
 
         private int CalcMinutesTotal(int minutesNow)
             => minutesBefore + (tsmiCountInCurrent.Checked ? minutesNow : 0);
@@ -232,8 +251,16 @@ namespace GameStopwatch
 
         private void TsmiResetTotalTime_Click(object sender, EventArgs e)
         {
-            minutesBefore = 0;
-            DisplayMinutes();
+            try
+            {
+                Ds.DateMinutes.AddDateMinutesRow(CurrentDate
+                    , CurrentDate.DayOfWeek.ToString(), CalcMinutesTotal());
+                minutesBefore = 0;
+                gameStarted = DateTime.Now;
+                DisplayMinutes();
+                CurrentDate = DateTime.Today;
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
 
         private void TsmiChangeBeforeTime_Click(object sender, EventArgs e)

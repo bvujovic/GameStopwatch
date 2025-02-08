@@ -8,4 +8,11 @@ That way player can be prepared to collect items that appear on some schedule.
 
 ## TODO
 - [x] Add new form: grid (date, time) with past values. On select show avg time.
-	- [ ] User should have more control over assigning time (minutes) to sa certain date.
+	- [x] Add column Weekday
+	- [x] Add filtering:
+		- [x] mondays, tuesdays..., weekdays, weekends
+		- [x] last 7 days, 1 month
+	- [x] Add chart to Past Values form
+		- [ ] Chart should display only filtered rows
+- [ ] New screenshots
+- [ ] Code refactoring

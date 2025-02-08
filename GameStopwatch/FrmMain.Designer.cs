@@ -32,18 +32,21 @@
             Label label1;
             Label label2;
             Label label3;
+            Label label4;
             ctxTimeTotal = new ContextMenuStrip(components);
-            tsmiCountInCurrent = new ToolStripMenuItem();
             tsmiResetTotalTime = new ToolStripMenuItem();
             tsmiChangeBeforeTime = new ToolStripMenuItem();
+            tsmiCountInCurrent = new ToolStripMenuItem();
             tim = new System.Windows.Forms.Timer(components);
             lblMinutes = new Label();
             cmbVoices = new ComboBox();
             lblMinutesTotal = new Label();
             btnPastValues = new Button();
+            lblCurrentDate = new Label();
             label1 = new Label();
             label2 = new Label();
             label3 = new Label();
+            label4 = new Label();
             ctxTimeTotal.SuspendLayout();
             SuspendLayout();
             // 
@@ -61,9 +64,9 @@
             label2.AutoSize = true;
             label2.Location = new Point(15, 14);
             label2.Name = "label2";
-            label2.Size = new Size(118, 15);
+            label2.Size = new Size(127, 15);
             label2.TabIndex = 2;
-            label2.Text = "Time in app (current)";
+            label2.Text = "Gaming Time (current)";
             // 
             // label3
             // 
@@ -71,15 +74,29 @@
             label3.ContextMenuStrip = ctxTimeTotal;
             label3.Location = new Point(15, 78);
             label3.Name = "label3";
-            label3.Size = new Size(104, 15);
+            label3.Size = new Size(113, 15);
             label3.TabIndex = 5;
-            label3.Text = "Time in app (total)";
+            label3.Text = "Gaming Time (total)";
             // 
             // ctxTimeTotal
             // 
-            ctxTimeTotal.Items.AddRange(new ToolStripItem[] { tsmiCountInCurrent, tsmiResetTotalTime, tsmiChangeBeforeTime });
+            ctxTimeTotal.Items.AddRange(new ToolStripItem[] { tsmiResetTotalTime, tsmiChangeBeforeTime, tsmiCountInCurrent });
             ctxTimeTotal.Name = "ctxTimeTotal";
-            ctxTimeTotal.Size = new Size(193, 70);
+            ctxTimeTotal.Size = new Size(222, 70);
+            // 
+            // tsmiResetTotalTime
+            // 
+            tsmiResetTotalTime.Name = "tsmiResetTotalTime";
+            tsmiResetTotalTime.Size = new Size(221, 22);
+            tsmiResetTotalTime.Text = "Reset Total Time (New Date)";
+            tsmiResetTotalTime.Click += TsmiResetTotalTime_Click;
+            // 
+            // tsmiChangeBeforeTime
+            // 
+            tsmiChangeBeforeTime.Name = "tsmiChangeBeforeTime";
+            tsmiChangeBeforeTime.Size = new Size(192, 22);
+            tsmiChangeBeforeTime.Text = "Change Before Time";
+            tsmiChangeBeforeTime.Click += TsmiChangeBeforeTime_Click;
             // 
             // tsmiCountInCurrent
             // 
@@ -91,19 +108,15 @@
             tsmiCountInCurrent.Text = "Count in Current Time";
             tsmiCountInCurrent.CheckedChanged += TsmiCountInCurrent_CheckedChanged;
             // 
-            // tsmiResetTotalTime
+            // label4
             // 
-            tsmiResetTotalTime.Name = "tsmiResetTotalTime";
-            tsmiResetTotalTime.Size = new Size(192, 22);
-            tsmiResetTotalTime.Text = "Reset Total Time";
-            tsmiResetTotalTime.Click += TsmiResetTotalTime_Click;
-            // 
-            // tsmiChangeBeforeTime
-            // 
-            tsmiChangeBeforeTime.Name = "tsmiChangeBeforeTime";
-            tsmiChangeBeforeTime.Size = new Size(192, 22);
-            tsmiChangeBeforeTime.Text = "Change Before Time";
-            tsmiChangeBeforeTime.Click += TsmiChangeBeforeTime_Click;
+            label4.AutoSize = true;
+            label4.ContextMenuStrip = ctxTimeTotal;
+            label4.Location = new Point(170, 78);
+            label4.Name = "label4";
+            label4.Size = new Size(74, 15);
+            label4.TabIndex = 8;
+            label4.Text = "Current Date";
             // 
             // tim
             // 
@@ -145,7 +158,7 @@
             // 
             // btnPastValues
             // 
-            btnPastValues.Location = new Point(167, 96);
+            btnPastValues.Location = new Point(167, 144);
             btnPastValues.Name = "btnPastValues";
             btnPastValues.Size = new Size(102, 23);
             btnPastValues.TabIndex = 6;
@@ -153,11 +166,24 @@
             btnPastValues.UseVisualStyleBackColor = true;
             btnPastValues.Click += BtnPastValues_Click;
             // 
+            // lblCurrentDate
+            // 
+            lblCurrentDate.AutoSize = true;
+            lblCurrentDate.ContextMenuStrip = ctxTimeTotal;
+            lblCurrentDate.Font = new Font("Segoe UI", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblCurrentDate.Location = new Point(167, 92);
+            lblCurrentDate.Name = "lblCurrentDate";
+            lblCurrentDate.Size = new Size(21, 30);
+            lblCurrentDate.TabIndex = 7;
+            lblCurrentDate.Text = "/";
+            // 
             // FrmMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(340, 132);
+            ClientSize = new Size(340, 179);
+            Controls.Add(label4);
+            Controls.Add(lblCurrentDate);
             Controls.Add(btnPastValues);
             Controls.Add(label3);
             Controls.Add(lblMinutesTotal);
@@ -188,5 +214,6 @@
         private ToolStripMenuItem tsmiResetTotalTime;
         private ToolStripMenuItem tsmiChangeBeforeTime;
         private Button btnPastValues;
+        private Label lblCurrentDate;
     }
 }

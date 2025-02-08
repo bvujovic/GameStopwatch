@@ -16,6 +16,7 @@
           <xs:complexType>
             <xs:sequence>
               <xs:element name="Date" msprop:Generator_ColumnPropNameInTable="DateColumn" msprop:Generator_ColumnPropNameInRow="Date" msprop:Generator_UserColumnName="Date" msprop:Generator_ColumnVarNameInTable="columnDate" type="xs:dateTime" />
+              <xs:element name="Weekday" msprop:Generator_ColumnPropNameInRow="Weekday" msprop:Generator_ColumnPropNameInTable="WeekdayColumn" msprop:Generator_ColumnVarNameInTable="columnWeekday" msprop:Generator_UserColumnName="Weekday" type="xs:string" minOccurs="0" />
               <xs:element name="Minutes" msprop:Generator_ColumnPropNameInTable="MinutesColumn" msprop:Generator_ColumnPropNameInRow="Minutes" msprop:Generator_UserColumnName="Minutes" msprop:Generator_ColumnVarNameInTable="columnMinutes" type="xs:int" />
             </xs:sequence>
           </xs:complexType>

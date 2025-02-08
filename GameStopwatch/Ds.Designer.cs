@@ -283,6 +283,8 @@ namespace GameStopwatch {
             
             private global::System.Data.DataColumn columnDate;
             
+            private global::System.Data.DataColumn columnWeekday;
+            
             private global::System.Data.DataColumn columnMinutes;
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -325,6 +327,14 @@ namespace GameStopwatch {
             public global::System.Data.DataColumn DateColumn {
                 get {
                     return this.columnDate;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public global::System.Data.DataColumn WeekdayColumn {
+                get {
+                    return this.columnWeekday;
                 }
             }
             
@@ -373,10 +383,11 @@ namespace GameStopwatch {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public DateMinutesRow AddDateMinutesRow(System.DateTime Date, int Minutes) {
+            public DateMinutesRow AddDateMinutesRow(System.DateTime Date, string Weekday, int Minutes) {
                 DateMinutesRow rowDateMinutesRow = ((DateMinutesRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Date,
+                        Weekday,
                         Minutes};
                 rowDateMinutesRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowDateMinutesRow);
@@ -408,6 +419,7 @@ namespace GameStopwatch {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             internal void InitVars() {
                 this.columnDate = base.Columns["Date"];
+                this.columnWeekday = base.Columns["Weekday"];
                 this.columnMinutes = base.Columns["Minutes"];
             }
             
@@ -416,6 +428,8 @@ namespace GameStopwatch {
             private void InitClass() {
                 this.columnDate = new global::System.Data.DataColumn("Date", typeof(global::System.DateTime), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnDate);
+                this.columnWeekday = new global::System.Data.DataColumn("Weekday", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnWeekday);
                 this.columnMinutes = new global::System.Data.DataColumn("Minutes", typeof(int), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnMinutes);
                 this.Constraints.Add(new global::System.Data.UniqueConstraint("Constraint1", new global::System.Data.DataColumn[] {
@@ -576,6 +590,22 @@ namespace GameStopwatch {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public string Weekday {
+                get {
+                    try {
+                        return ((string)(this[this.tableDateMinutes.WeekdayColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'Weekday\' in table \'DateMinutes\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableDateMinutes.WeekdayColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public int Minutes {
                 get {
                     return ((int)(this[this.tableDateMinutes.MinutesColumn]));
@@ -583,6 +613,18 @@ namespace GameStopwatch {
                 set {
                     this[this.tableDateMinutes.MinutesColumn] = value;
                 }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsWeekdayNull() {
+                return this.IsNull(this.tableDateMinutes.WeekdayColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetWeekdayNull() {
+                this[this.tableDateMinutes.WeekdayColumn] = global::System.Convert.DBNull;
             }
         }
         

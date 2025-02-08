@@ -46,5 +46,16 @@ namespace GameStopwatch.Properties {
                 this["MinutesBefore"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.DateTime CurrentDate {
+            get {
+                return ((global::System.DateTime)(this["CurrentDate"]));
+            }
+            set {
+                this["CurrentDate"] = value;
+            }
+        }
     }
 }
