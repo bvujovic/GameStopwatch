@@ -5,13 +5,17 @@ namespace GameStopwatch
 {
     public partial class FrmPastValues : Form
     {
-        public FrmPastValues()
+        public FrmPastValues(FrmMain frmMain)
         {
             InitializeComponent();
-            dateMinutes = FrmMain.Ds.DateMinutes;
+            this.frmMain = frmMain;
+            dateMinutes = frmMain.Ds.DateMinutes;
         }
 
-        private Ds.DateMinutesDataTable dateMinutes;
+        private readonly FrmMain frmMain;
+        private readonly Ds.DateMinutesDataTable dateMinutes;
+        private IEnumerable<Ds.DateMinutesRow?> DateMinutesDisplayed
+            => bs.List.Cast<DataRowView>().Select(it => it.Row as Ds.DateMinutesRow).Reverse();
 
         private void FrmPastValues_Load(object sender, EventArgs e)
         {
@@ -27,6 +31,7 @@ namespace GameStopwatch
                 dgv.DataSource = bs;
                 foreach (DataGridViewColumn col in dgv.Columns)
                     col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                RefreshStatusBar();
 
                 var htmlPath = Path.Combine(Application.StartupPath, "chart.html");
                 webView.Source = new Uri(htmlPath);
@@ -39,10 +44,8 @@ namespace GameStopwatch
                 cmbFilter.Items.Add(DayOfWeek.Friday);
                 cmbFilter.Items.Add(DayOfWeek.Saturday);
                 cmbFilter.Items.Add(DayOfWeek.Sunday);
-
                 cmbFilter.Items.Add("Weekdays");
                 cmbFilter.Items.Add("Weekends");
-
                 cmbFilter.Items.Add("Last 7 days");
                 cmbFilter.Items.Add("Last 14 days");
                 cmbFilter.Items.Add("Last 4 weeks");
@@ -54,10 +57,11 @@ namespace GameStopwatch
         {
             if (webView.CoreWebView2 != null)
             {
+                var dms = DateMinutesDisplayed;
                 var chartData = new
                 {
-                    labels = dateMinutes.Select(it => it.Date.ToShortDateString()),
-                    values = dateMinutes.Select(it => it.Minutes),
+                    labels = dms.Select(it => it!.Date.ToShortDateString()),
+                    values = dms.Select(it => it!.Minutes),
                     label = "Gaming Time by Dates"
                 };
                 var jsonData = JsonSerializer.Serialize(chartData);
@@ -69,6 +73,9 @@ namespace GameStopwatch
             => webView.Reload();
 
         private void Dgv_SelectionChanged(object sender, EventArgs e)
+            => RefreshStatusBar();
+
+        private void RefreshStatusBar()
         {
             int sum = 0, count = 0;
             foreach (var row in dgv.SelectedRows)
@@ -79,6 +86,12 @@ namespace GameStopwatch
                 sum += dateMin!.Minutes;
                 count++;
             }
+            if (dgv.SelectedRows.Count == 0)
+            {
+                var dms = DateMinutesDisplayed;
+                count = dms.Count();
+                sum = dms.Sum(it => it!.Minutes);
+            }
             lblCount.Text = count.ToString();
             lblAvg.Text = count == 0 ? "/" : ((double)sum / count).ToString("0.0");
         }
@@ -88,27 +101,59 @@ namespace GameStopwatch
             try
             {
                 if (cmbFilter.SelectedItem == null)
-                    return;
-                if (cmbFilter.SelectedIndex < 7)
+                    bs.RemoveFilter();
+                else if (cmbFilter.SelectedIndex < 7)
                     bs.Filter = $"Weekday = '{cmbFilter.SelectedItem}'";
-                var selItem = cmbFilter.SelectedItem.ToString();
+                else
+                {
+                    var selItem = cmbFilter.SelectedItem.ToString();
+                    if (selItem == "Weekdays")
+                        bs.Filter = "Weekday IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')";
+                    if (selItem == "Weekends")
+                        bs.Filter = "Weekday IN ('Saturday', 'Sunday')";
 
-                if (selItem == "Weekdays")
-                    bs.Filter = "Weekday IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')";
-                if (selItem == "Weekends")
-                    bs.Filter = "Weekday IN ('Saturday', 'Sunday')";
-
-                var d = DateTime.Today;
-                if (selItem == "Last 7 days")
-                    bs.Filter = $"Date >= '{(d.AddDays(-7)).ToShortDateString()}'";
-                if (selItem == "Last 14 days")
-                    bs.Filter = $"Date >= '{(d.AddDays(-14)).ToShortDateString()}'";
-                if (selItem == "Last 4 weeks")
-                    bs.Filter = $"Date >= '{(d.AddDays(-28)).ToShortDateString()}'";
-
-                //TODO webView.Reload() ili UpdateChartData()
+                    var d = DateTime.Today;
+                    if (selItem == "Last 7 days")
+                        bs.Filter = $"Date >= '{(d.AddDays(-7)).ToShortDateString()}'";
+                    if (selItem == "Last 14 days")
+                        bs.Filter = $"Date >= '{(d.AddDays(-14)).ToShortDateString()}'";
+                    if (selItem == "Last 4 weeks")
+                        bs.Filter = $"Date >= '{(d.AddDays(-28)).ToShortDateString()}'";
+                }
+                RefreshStatusBar();
+                webView.Reload();
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
+        }
+
+        private void BtnFilterReset_Click(object sender, EventArgs e)
+        {
+            cmbFilter.SelectedItem = null;
+        }
+
+        private bool currentAdded = false;
+        private void ChkIncludeCurrent_CheckedChanged(object sender, EventArgs e)
+        {
+            var dm = dateMinutes.FindByDate(frmMain.CurrentDate);
+            if (chkIncludeCurrent.Checked && dm == null)
+            {
+                dateMinutes.AddDateMinutesRow(frmMain.CurrentDate, frmMain.CurrentDate.DayOfWeek.ToString()
+                    , frmMain.GetMinutesTotal());
+                currentAdded = true;
+            }
+            if (!chkIncludeCurrent.Checked && dm != null)
+            {
+                dateMinutes.RemoveDateMinutesRow(dm);
+                currentAdded = false;
+            }
+            RefreshStatusBar();
+            webView.Reload();
+        }
+
+        private void FrmPastValues_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (currentAdded)
+                dateMinutes.RemoveDateMinutesRow(dateMinutes.FindByDate(frmMain.CurrentDate));
         }
     }
 }

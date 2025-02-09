@@ -11,7 +11,7 @@ namespace GameStopwatch
         }
 
         private const string dataSetFileName = "ds.xml";
-        public static Ds Ds { get; set; } = new Ds();
+        public Ds Ds { get; set; } = new Ds();
 
         private bool procAlreadyStarted = false;
 
@@ -55,7 +55,7 @@ namespace GameStopwatch
                 return;
             Properties.Settings.Default.IdxVoice = cmbVoices.SelectedIndex;
             //var min = Properties.Settings.Default.MinutesBefore = CalcMinutesTotal(CalcMinutes());
-            Properties.Settings.Default.MinutesBefore = CalcMinutesTotal();
+            Properties.Settings.Default.MinutesBefore = GetMinutesTotal();
             Properties.Settings.Default.CurrentDate = CurrentDate;
             Properties.Settings.Default.Save();
 
@@ -140,7 +140,7 @@ namespace GameStopwatch
             //        System.Diagnostics.Debug.WriteLine(k);
 
             //int minutes = (int)(DateTime.Now - gameStarted).TotalMinutes;
-            int minutes = CalcMinutes();
+            int minutes = GetMinutes();
 
             // pauza: pocetak/kraj
             if (IsKeyPushedDown(Keys.Escape))
@@ -225,23 +225,23 @@ namespace GameStopwatch
         private int minutesBefore;
 
         /// <summary>Calculate minutes in app. minutesBefore do not count.</summary>
-        private int CalcMinutes()
+        private int GetMinutes()
             => (int)(DateTime.Now - gameStarted).TotalMinutes;
 
-        private int CalcMinutesTotal()
-            => CalcMinutesTotal(CalcMinutes());
+        public int GetMinutesTotal()
+            => GetMinutesTotal(GetMinutes());
 
-        private int CalcMinutesTotal(int minutesNow)
+        private int GetMinutesTotal(int minutesNow)
             => minutesBefore + (tsmiCountInCurrent.Checked ? minutesNow : 0);
 
         private void DisplayMinutes(int minutesNow)
         {
             lblMinutes.Text = MinToString(minutesNow);
-            lblMinutesTotal.Text = MinToString(CalcMinutesTotal(minutesNow));
+            lblMinutesTotal.Text = MinToString(GetMinutesTotal(minutesNow));
         }
 
         private void DisplayMinutes()
-            => DisplayMinutes(CalcMinutes());
+            => DisplayMinutes(GetMinutes());
 
         private void TsmiCountInCurrent_CheckedChanged(object sender, EventArgs e)
         {
@@ -254,7 +254,7 @@ namespace GameStopwatch
             try
             {
                 Ds.DateMinutes.AddDateMinutesRow(CurrentDate
-                    , CurrentDate.DayOfWeek.ToString(), CalcMinutesTotal());
+                    , CurrentDate.DayOfWeek.ToString(), GetMinutesTotal());
                 minutesBefore = 0;
                 gameStarted = DateTime.Now;
                 DisplayMinutes();
@@ -277,7 +277,7 @@ namespace GameStopwatch
         private void BtnPastValues_Click(object sender, EventArgs e)
         {
             tim.Stop();
-            new FrmPastValues().ShowDialog();
+            new FrmPastValues(this).ShowDialog();
             Thread.Sleep(500); // avoid catching Enter or Escape keypresses from frm and making a sound
             tim.Start();
         }

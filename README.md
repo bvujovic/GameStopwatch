@@ -7,12 +7,10 @@ That way player can be prepared to collect items that appear on some schedule.
 ![Game Stopwatch - Main Window](ScreenShots/MainForm.png)
 
 ## TODO
-- [x] Add new form: grid (date, time) with past values. On select show avg time.
-	- [x] Add column Weekday
-	- [x] Add filtering:
-		- [x] mondays, tuesdays..., weekdays, weekends
-		- [x] last 7 days, 1 month
-	- [x] Add chart to Past Values form
-		- [ ] Chart should display only filtered rows
-- [ ] New screenshots
+- [x] FrmPastValues:
+	- [x] Chart should display only filtered rows
+	- [x] Add check box: Include current date and gametime
+	- [x] Remove Filter: button or item in cmbFilter
+	- [x] Always display Count, Avg in status bar
+- [x] New screenshots
 - [ ] Code refactoring

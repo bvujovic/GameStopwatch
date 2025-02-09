@@ -38,6 +38,8 @@
             dgv = new DataGridView();
             webView = new Microsoft.Web.WebView2.WinForms.WebView2();
             cmbFilter = new ComboBox();
+            btnFilterReset = new Button();
+            chkIncludeCurrent = new CheckBox();
             toolStripStatusLabel1 = new ToolStripStatusLabel();
             toolStripStatusLabel2 = new ToolStripStatusLabel();
             statusStrip1.SuspendLayout();
@@ -63,7 +65,7 @@
             statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1, lblCount, toolStripStatusLabel2, lblAvg });
             statusStrip1.Location = new Point(0, 428);
             statusStrip1.Name = "statusStrip1";
-            statusStrip1.Size = new Size(865, 22);
+            statusStrip1.Size = new Size(1049, 22);
             statusStrip1.TabIndex = 1;
             statusStrip1.Text = "statusStrip1";
             // 
@@ -83,9 +85,9 @@
             // 
             dgv.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             dgv.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgv.Location = new Point(12, 41);
+            dgv.Location = new Point(12, 74);
             dgv.Name = "dgv";
-            dgv.Size = new Size(363, 384);
+            dgv.Size = new Size(363, 351);
             dgv.TabIndex = 2;
             dgv.SelectionChanged += Dgv_SelectionChanged;
             // 
@@ -97,25 +99,51 @@
             webView.DefaultBackgroundColor = Color.White;
             webView.Location = new Point(381, 12);
             webView.Name = "webView";
-            webView.Size = new Size(472, 413);
+            webView.Size = new Size(656, 413);
             webView.TabIndex = 3;
             webView.ZoomFactor = 1D;
             webView.Resize += WebView_Resize;
             // 
             // cmbFilter
             // 
+            cmbFilter.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbFilter.FormattingEnabled = true;
-            cmbFilter.Location = new Point(164, 12);
+            cmbFilter.Location = new Point(12, 12);
             cmbFilter.Name = "cmbFilter";
-            cmbFilter.Size = new Size(211, 23);
+            cmbFilter.Size = new Size(191, 23);
             cmbFilter.TabIndex = 4;
             cmbFilter.SelectedIndexChanged += CmbFilter_SelectedIndexChanged;
+            // 
+            // btnFilterReset
+            // 
+            btnFilterReset.FlatStyle = FlatStyle.System;
+            btnFilterReset.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnFilterReset.Location = new Point(203, 11);
+            btnFilterReset.Name = "btnFilterReset";
+            btnFilterReset.Size = new Size(30, 25);
+            btnFilterReset.TabIndex = 5;
+            btnFilterReset.Text = "X";
+            btnFilterReset.UseVisualStyleBackColor = true;
+            btnFilterReset.Click += BtnFilterReset_Click;
+            // 
+            // chkIncludeCurrent
+            // 
+            chkIncludeCurrent.AutoSize = true;
+            chkIncludeCurrent.Location = new Point(12, 42);
+            chkIncludeCurrent.Name = "chkIncludeCurrent";
+            chkIncludeCurrent.Size = new Size(226, 19);
+            chkIncludeCurrent.TabIndex = 6;
+            chkIncludeCurrent.Text = "Include current date and gaming time";
+            chkIncludeCurrent.UseVisualStyleBackColor = true;
+            chkIncludeCurrent.CheckedChanged += ChkIncludeCurrent_CheckedChanged;
             // 
             // FrmPastValues
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(865, 450);
+            ClientSize = new Size(1049, 450);
+            Controls.Add(chkIncludeCurrent);
+            Controls.Add(btnFilterReset);
             Controls.Add(cmbFilter);
             Controls.Add(webView);
             Controls.Add(dgv);
@@ -123,6 +151,7 @@
             Name = "FrmPastValues";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Past Values";
+            FormClosing += FrmPastValues_FormClosing;
             Load += FrmPastValues_Load;
             statusStrip1.ResumeLayout(false);
             statusStrip1.PerformLayout();
@@ -141,5 +170,7 @@
         private DataGridView dgv;
         private Microsoft.Web.WebView2.WinForms.WebView2 webView;
         private ComboBox cmbFilter;
+        private Button btnFilterReset;
+        private CheckBox chkIncludeCurrent;
     }
 }
