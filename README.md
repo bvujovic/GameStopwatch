@@ -6,6 +6,8 @@ That way player can be prepared to collect items that appear on some schedule.
 
 ![Game Stopwatch - Main Window](ScreenShots/MainForm.png)
 
+![Game Stopwatch - Past Values (statistics)](ScreenShots/FrmPastValues.png)
+
 ## TODO
 - [x] FrmPastValues:
 	- [x] Chart should display only filtered rows
