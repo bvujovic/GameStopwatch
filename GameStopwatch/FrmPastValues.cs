@@ -15,7 +15,8 @@ namespace GameStopwatch
         private readonly FrmMain frmMain;
         private readonly Ds.DateMinutesDataTable dateMinutes;
         private IEnumerable<Ds.DateMinutesRow?> DateMinutesDisplayed
-            => bs.List.Cast<DataRowView>().Select(it => it.Row as Ds.DateMinutesRow).Reverse();
+            => bs.List.Cast<DataRowView>().Where(it => !it.IsNew)
+                .Select(it => it.Row as Ds.DateMinutesRow).Reverse();
 
         private void FrmPastValues_Load(object sender, EventArgs e)
         {
@@ -27,6 +28,7 @@ namespace GameStopwatch
 
                 bs.DataSource = dateMinutes;
                 bs.Sort = "Date DESC";
+                bs.RemoveFilter();
 
                 dgv.DataSource = bs;
                 foreach (DataGridViewColumn col in dgv.Columns)
@@ -131,29 +133,38 @@ namespace GameStopwatch
             cmbFilter.SelectedItem = null;
         }
 
+        private List<Ds.DateMinutesRow> addedZeroFilledRows;
         private bool currentAdded = false;
         private void ChkIncludeCurrent_CheckedChanged(object sender, EventArgs e)
         {
             var dm = dateMinutes.FindByDate(frmMain.CurrentDate);
             if (chkIncludeCurrent.Checked && dm == null)
             {
+                addedZeroFilledRows = frmMain.FillWithZeros();
                 dateMinutes.AddDateMinutesRow(frmMain.CurrentDate, frmMain.CurrentDate.DayOfWeek.ToString()
                     , frmMain.GetMinutesTotal());
                 currentAdded = true;
             }
             if (!chkIncludeCurrent.Checked && dm != null)
             {
-                dateMinutes.RemoveDateMinutesRow(dm);
+                RemoveTempRows(dm);
                 currentAdded = false;
             }
             RefreshStatusBar();
             webView.Reload();
         }
 
+        private void RemoveTempRows(Ds.DateMinutesRow dm)
+        {
+            foreach (var r in addedZeroFilledRows)
+                dateMinutes.RemoveDateMinutesRow(r);
+            dateMinutes.RemoveDateMinutesRow(dm);
+        }
+
         private void FrmPastValues_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (currentAdded)
-                dateMinutes.RemoveDateMinutesRow(dateMinutes.FindByDate(frmMain.CurrentDate));
+                RemoveTempRows(dateMinutes.FindByDate(frmMain.CurrentDate));
         }
     }
 }

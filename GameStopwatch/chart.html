@@ -9,7 +9,7 @@
 <body>
     <canvas id="myChart"></canvas>
     <script>
-    function updateChart(jsonData) {
+        function updateChart(jsonData) {
             const data = JSON.parse(jsonData);
             const ctx = document.getElementById('myChart').getContext('2d');
 
@@ -22,6 +22,11 @@
                         data: data.values,
                         backgroundColor: 'red'
                     }]
+                },
+                options: {
+                    scales: {
+                        y: { min: 0 }
+                    }
                 }
             });
         }</script>

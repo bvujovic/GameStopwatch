@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Speech.Synthesis;
 namespace GameStopwatch
 {
     public partial class FrmMain : Form
@@ -11,6 +10,7 @@ namespace GameStopwatch
         }
 
         private const string dataSetFileName = "ds.xml";
+
         public Ds Ds { get; set; } = new Ds();
 
         private bool procAlreadyStarted = false;
@@ -22,7 +22,6 @@ namespace GameStopwatch
                 if (procAlreadyStarted = Process.GetProcesses().Count(it => it.ProcessName == Process.GetCurrentProcess().ProcessName) > 1)
                     Close();
 
-                cmbVoices.SelectedIndex = Properties.Settings.Default.IdxVoice;
                 minutesBefore = Properties.Settings.Default.MinutesBefore;
                 CurrentDate = Properties.Settings.Default.CurrentDate;
                 if (CurrentDate.Year < 2020)
@@ -31,10 +30,12 @@ namespace GameStopwatch
 
                 Ds.ReadXml(dataSetFileName);
 
-                //synth.SpeakAsync("It's time");
+                cmbVoices.Items.Clear();
+                foreach (var v in speaker.Synth.GetInstalledVoices())
+                    cmbVoices.Items.Add(v.VoiceInfo.Name);
+                cmbVoices.SelectedIndex = Properties.Settings.Default.IdxVoice;
 
-                //foreach (var v in synth.GetInstalledVoices())
-                //    Console.WriteLine(v);
+                //synth.SpeakAsync("It's time");
 
                 //* Save sound to a file (ChatGPT)
                 //using SpeechSynthesizer synth = new();
@@ -54,16 +55,9 @@ namespace GameStopwatch
             if (procAlreadyStarted)
                 return;
             Properties.Settings.Default.IdxVoice = cmbVoices.SelectedIndex;
-            //var min = Properties.Settings.Default.MinutesBefore = CalcMinutesTotal(CalcMinutes());
             Properties.Settings.Default.MinutesBefore = GetMinutesTotal();
             Properties.Settings.Default.CurrentDate = CurrentDate;
             Properties.Settings.Default.Save();
-
-            //var dm = Ds.DateMinutes.FindByDate(DateTime.Today);
-            //if (dm == null)
-            //    Ds.DateMinutes.AddDateMinutesRow(DateTime.Today, min);
-            //else
-            //    dm.Minutes = min;
             Ds.WriteXml(dataSetFileName);
         }
 
@@ -72,18 +66,18 @@ namespace GameStopwatch
             try
             {
                 if (cmbVoices.SelectedItem != null)
-                    synth.SelectVoice((string)cmbVoices.SelectedItem);
+                    speaker.Synth.SelectVoice((string)cmbVoices.SelectedItem);
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
 
-        private static readonly SpeechSynthesizer synth = new() { Volume = 100, Rate = 3 };
+        private readonly Speaker speaker = new();
 
         private DateTime gameStarted = DateTime.Now;
         private int minutesDisplayed = 0;
-        private int gamePlayedAlarm = 20; // (minutes) sound will be heard after spec amount of time
+        private const int notificationInterval = 10; // (minutes) sound will be heard after spec amount of time
+        private int nextTimeNotification = notificationInterval; // (minutes)
         private DateTime? pauseStarted = null;
-        private TimeSpan pausedTime;
         private bool pauseKeyPressed = false;
 
         // Ovo je osnova za reagovanje na pritiskanje tastera i u slucaju da prozor nije u fokusu
@@ -115,9 +109,11 @@ namespace GameStopwatch
             new X(Keys.PageDown, "Quad damage", 60+45), // 4X
         ];
 
+        private static readonly System.Media.SoundPlayer soundPlayer = new(@"c:\Windows\Media\ringout.wav");
+
         private static void PlayPressSound()
         {
-            using var soundPlayer = new System.Media.SoundPlayer(@"c:\Windows\Media\ringout.wav");
+            //using var soundPlayer = new System.Media.SoundPlayer(@"c:\Windows\Media\ringout.wav");
             soundPlayer.Play();
         }
 
@@ -127,10 +123,8 @@ namespace GameStopwatch
             return min + " minute" + (m % 10 == 1 && m != 11 ? "" : "s");
         }
 
-        private static void SpeakGameTime(int min)
-        {
-            synth.Speak(MinToString(min));
-        }
+        private void SpeakGameTime(int min)
+            => speaker.Speak(MinToString(min));
 
         private void Tim_Tick(object sender, EventArgs e)
         {
@@ -149,17 +143,13 @@ namespace GameStopwatch
                 {
                     if (!pauseStarted.HasValue) // pause: start
                     {
-                        pauseStarted = DateTime.Now;
+                        PauseStart();
                         SpeakGameTime(minutes);
                     }
                     else // pause: end
                     {
-                        pausedTime = DateTime.Now - pauseStarted.Value;
-                        //System.Diagnostics.Debug.WriteLine("paused: " + pausedTime + "@ " + DateTime.Now);
-                        gameStarted += pausedTime;
-                        foreach (X x in xs.Where(it => it.Start.HasValue))
-                            x.Start += pausedTime;
-                        pauseStarted = null;
+                        PauseStop();
+                        //speaker.Speak(SpeakerSounds.KeyPress);
                         PlayPressSound();
                     }
                 }
@@ -174,9 +164,9 @@ namespace GameStopwatch
                 DisplayMinutes(minutesDisplayed = minutes);
 
             // dosta igranja
-            if (minutes >= gamePlayedAlarm)
+            if (minutes >= nextTimeNotification)
             {
-                gamePlayedAlarm += 10;
+                nextTimeNotification += notificationInterval;
                 //synth.Speak("It's time");
                 SpeakGameTime(minutes);
             }
@@ -186,6 +176,7 @@ namespace GameStopwatch
             {
                 foreach (X x in xs)
                     x.Start = null;
+                //speaker.Speak(SpeakerSounds.KeyPress);
                 PlayPressSound();
             }
 
@@ -197,6 +188,7 @@ namespace GameStopwatch
                     if (IsKeyPushedDown(x.Key))
                     {
                         x.Start = DateTime.Now;
+                        //speaker.Speak(SpeakerSounds.KeyPress);
                         PlayPressSound();
                     }
                 }
@@ -204,7 +196,9 @@ namespace GameStopwatch
                     // ako je vreme tajmera isteklo - pusti odgovarajuci zvuk
                     if ((DateTime.Now - x.Start.Value).TotalSeconds >= x.Secs)
                 {
-                    synth.Speak(x.Sound);
+                    //synth.Speak(x.Sound);
+                    //speaker.Speak(SpeakerSounds.Shield);
+                    speaker.Speak(x.Sound);
                     x.Start = null;
                 }
             }
@@ -253,6 +247,7 @@ namespace GameStopwatch
         {
             try
             {
+                FillWithZeros();
                 Ds.DateMinutes.AddDateMinutesRow(CurrentDate
                     , CurrentDate.DayOfWeek.ToString(), GetMinutesTotal());
                 minutesBefore = 0;
@@ -266,20 +261,56 @@ namespace GameStopwatch
         private void TsmiChangeBeforeTime_Click(object sender, EventArgs e)
         {
             tim.Stop();
+            PauseStart();
             var frm = new FrmChangeBeforeTime { MinutesBefore = minutesBefore };
             if (frm.ShowDialog() == DialogResult.OK)
                 minutesBefore = frm.MinutesBefore;
             DisplayMinutes();
             Thread.Sleep(500); // avoid catching Enter or Escape keypresses from frm and making a sound
+            PauseStop();
             tim.Start();
         }
 
         private void BtnPastValues_Click(object sender, EventArgs e)
         {
             tim.Stop();
+            PauseStart();
             new FrmPastValues(this).ShowDialog();
             Thread.Sleep(500); // avoid catching Enter or Escape keypresses from frm and making a sound
+            PauseStop();
             tim.Start();
+        }
+
+        private void PauseStart()
+        {
+            if (pauseStarted.HasValue)
+                PauseStop();
+            pauseStarted = DateTime.Now;
+        }
+
+        private void PauseStop()
+        {
+            if (pauseStarted == null)
+                return;
+            var pausedTime = DateTime.Now - pauseStarted.Value;
+            gameStarted += pausedTime;
+            foreach (X x in xs.Where(it => it.Start.HasValue))
+                x.Start += pausedTime;
+            pauseStarted = null;
+        }
+
+        public List<Ds.DateMinutesRow> FillWithZeros()
+        {
+            if (Ds.DateMinutes.Count == 0)
+                return [];
+            var nextDate = Ds.DateMinutes.Max(it => it.Date).AddDays(1);
+            if (nextDate >= CurrentDate)
+                return [];
+
+            var addedRows = new List<Ds.DateMinutesRow>();
+            for (var d = nextDate; d < CurrentDate; d = d.AddDays(1))
+                addedRows.Add(Ds.DateMinutes.AddDateMinutesRow(d, d.DayOfWeek.ToString(), 0));
+            return addedRows;
         }
     }
 }

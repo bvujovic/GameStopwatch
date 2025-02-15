@@ -72,6 +72,7 @@
             // 
             label3.AutoSize = true;
             label3.ContextMenuStrip = ctxTimeTotal;
+            label3.Cursor = Cursors.Hand;
             label3.Location = new Point(15, 78);
             label3.Name = "label3";
             label3.Size = new Size(113, 15);
@@ -94,7 +95,7 @@
             // tsmiChangeBeforeTime
             // 
             tsmiChangeBeforeTime.Name = "tsmiChangeBeforeTime";
-            tsmiChangeBeforeTime.Size = new Size(192, 22);
+            tsmiChangeBeforeTime.Size = new Size(221, 22);
             tsmiChangeBeforeTime.Text = "Change Before Time";
             tsmiChangeBeforeTime.Click += TsmiChangeBeforeTime_Click;
             // 
@@ -104,7 +105,7 @@
             tsmiCountInCurrent.CheckOnClick = true;
             tsmiCountInCurrent.CheckState = CheckState.Checked;
             tsmiCountInCurrent.Name = "tsmiCountInCurrent";
-            tsmiCountInCurrent.Size = new Size(192, 22);
+            tsmiCountInCurrent.Size = new Size(221, 22);
             tsmiCountInCurrent.Text = "Count in Current Time";
             tsmiCountInCurrent.CheckedChanged += TsmiCountInCurrent_CheckedChanged;
             // 
@@ -149,6 +150,7 @@
             // 
             lblMinutesTotal.AutoSize = true;
             lblMinutesTotal.ContextMenuStrip = ctxTimeTotal;
+            lblMinutesTotal.Cursor = Cursors.Hand;
             lblMinutesTotal.Font = new Font("Segoe UI", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             lblMinutesTotal.Location = new Point(12, 92);
             lblMinutesTotal.Name = "lblMinutesTotal";
