@@ -11,6 +11,8 @@ namespace GameStopwatch
 
         private const string dataSetFileName = "ds.xml";
 
+        private const string backupFolder = "backup";
+
         public Ds Ds { get; set; } = new Ds();
 
         private bool procAlreadyStarted = false;
@@ -34,6 +36,13 @@ namespace GameStopwatch
                 foreach (var v in speaker.Synth.GetInstalledVoices())
                     cmbVoices.Items.Add(v.VoiceInfo.Name);
                 cmbVoices.SelectedIndex = Properties.Settings.Default.IdxVoice;
+
+                if ((DateTime.Now - Properties.Settings.Default.LastBackup).TotalDays >= 7)
+                {
+                    Ds.WriteXml($"{backupFolder}/{DateTime.Now:yyyy.MM.dd_HH.mm}.xml");
+                    Properties.Settings.Default.LastBackup = DateTime.Now;
+                }
+                lblLastBackup.Text = Properties.Settings.Default.LastBackup.ToShortDateString();
 
                 //synth.SpeakAsync("It's time");
 
@@ -311,6 +320,19 @@ namespace GameStopwatch
             for (var d = nextDate; d < CurrentDate; d = d.AddDays(1))
                 addedRows.Add(Ds.DateMinutes.AddDateMinutesRow(d, d.DayOfWeek.ToString(), 0));
             return addedRows;
+        }
+
+        private void LblLastBackup_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo()
+                {
+                    UseShellExecute = true,
+                    FileName = Path.Combine(Directory.GetCurrentDirectory(), backupFolder)
+                });
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message, "Open Current Folder"); }
         }
     }
 }

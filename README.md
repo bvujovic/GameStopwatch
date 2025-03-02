@@ -10,7 +10,4 @@ Time spent in game is shown in table and chart form.
 ![Game Stopwatch - Past Values (statistics)](ScreenShots/FrmPastValues.png)
 
 ## TODO
-- [x] Sounds should play async
-- [x] Time spent forms other than FrmMain should not count
-- [x] Days without any gaming time will have zeros instead of being skipped
 - [ ] Code refactoring

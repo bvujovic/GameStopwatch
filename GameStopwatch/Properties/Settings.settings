@@ -11,5 +11,8 @@
     <Setting Name="CurrentDate" Type="System.DateTime" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="LastBackup" Type="System.DateTime" Scope="User">
+      <Value Profile="(Default)">2025-01-01</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

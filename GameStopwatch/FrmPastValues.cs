@@ -60,9 +60,10 @@ namespace GameStopwatch
             if (webView.CoreWebView2 != null)
             {
                 var dms = DateMinutesDisplayed;
+                var fmt = dms.Count() < 8 ? "yyyy-MM-dd" : "MM-dd";
                 var chartData = new
                 {
-                    labels = dms.Select(it => it!.Date.ToShortDateString()),
+                    labels = dms.Select(it => it!.Date.ToString(fmt)),
                     values = dms.Select(it => it!.Minutes),
                     label = "Gaming Time by Dates"
                 };

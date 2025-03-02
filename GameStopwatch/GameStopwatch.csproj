@@ -12,6 +12,9 @@
     <None Update="chart.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="chart.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Ds.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>Ds.Designer.cs</LastGenOutput>
@@ -29,8 +32,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2957.106" />
-    <PackageReference Include="System.Speech" Version="9.0.1" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3065.39" />
+    <PackageReference Include="System.Speech" Version="9.0.2" />
   </ItemGroup>
 
   <ItemGroup>

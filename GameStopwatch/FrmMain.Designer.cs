@@ -33,6 +33,7 @@
             Label label2;
             Label label3;
             Label label4;
+            Label label5;
             ctxTimeTotal = new ContextMenuStrip(components);
             tsmiResetTotalTime = new ToolStripMenuItem();
             tsmiChangeBeforeTime = new ToolStripMenuItem();
@@ -43,10 +44,12 @@
             lblMinutesTotal = new Label();
             btnPastValues = new Button();
             lblCurrentDate = new Label();
+            lblLastBackup = new Label();
             label1 = new Label();
             label2 = new Label();
             label3 = new Label();
             label4 = new Label();
+            label5 = new Label();
             ctxTimeTotal.SuspendLayout();
             SuspendLayout();
             // 
@@ -119,6 +122,15 @@
             label4.TabIndex = 8;
             label4.Text = "Current Date";
             // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new Point(15, 142);
+            label5.Name = "label5";
+            label5.Size = new Size(70, 15);
+            label5.TabIndex = 10;
+            label5.Text = "Last Backup";
+            // 
             // tim
             // 
             tim.Enabled = true;
@@ -160,7 +172,7 @@
             // 
             // btnPastValues
             // 
-            btnPastValues.Location = new Point(167, 144);
+            btnPastValues.Location = new Point(167, 160);
             btnPastValues.Name = "btnPastValues";
             btnPastValues.Size = new Size(102, 23);
             btnPastValues.TabIndex = 6;
@@ -179,11 +191,25 @@
             lblCurrentDate.TabIndex = 7;
             lblCurrentDate.Text = "/";
             // 
+            // lblLastBackup
+            // 
+            lblLastBackup.AutoSize = true;
+            lblLastBackup.Cursor = Cursors.Hand;
+            lblLastBackup.Font = new Font("Segoe UI", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblLastBackup.Location = new Point(12, 156);
+            lblLastBackup.Name = "lblLastBackup";
+            lblLastBackup.Size = new Size(117, 30);
+            lblLastBackup.TabIndex = 9;
+            lblLastBackup.Text = "2025-02-05";
+            lblLastBackup.Click += LblLastBackup_Click;
+            // 
             // FrmMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(340, 179);
+            ClientSize = new Size(340, 192);
+            Controls.Add(label5);
+            Controls.Add(lblLastBackup);
             Controls.Add(label4);
             Controls.Add(lblCurrentDate);
             Controls.Add(btnPastValues);
@@ -217,5 +243,6 @@
         private ToolStripMenuItem tsmiChangeBeforeTime;
         private Button btnPastValues;
         private Label lblCurrentDate;
+        private Label lblLastBackup;
     }
 }
