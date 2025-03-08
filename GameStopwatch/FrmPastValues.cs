@@ -35,25 +35,48 @@ namespace GameStopwatch
                     col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                 RefreshStatusBar();
 
-                var htmlPath = Path.Combine(Application.StartupPath, "chart.html");
-                webView.Source = new Uri(htmlPath);
-                webView.NavigationCompleted += (sender, e) => UpdateChartData();
+                //var htmlPath = Path.Combine(Application.StartupPath, "chart.html");
+                //webView.Source = new Uri(htmlPath);
+                //webView.NavigationCompleted += (sender, e) => UpdateChartData();
 
-                cmbFilter.Items.Add(DayOfWeek.Monday);
-                cmbFilter.Items.Add(DayOfWeek.Tuesday);
-                cmbFilter.Items.Add(DayOfWeek.Wednesday);
-                cmbFilter.Items.Add(DayOfWeek.Thursday);
-                cmbFilter.Items.Add(DayOfWeek.Friday);
-                cmbFilter.Items.Add(DayOfWeek.Saturday);
-                cmbFilter.Items.Add(DayOfWeek.Sunday);
-                cmbFilter.Items.Add("Weekdays");
-                cmbFilter.Items.Add("Weekends");
-                cmbFilter.Items.Add("Last 7 days");
-                cmbFilter.Items.Add("Last 14 days");
-                cmbFilter.Items.Add("Last 4 weeks");
+                cmbFilterWeekDays.Items.Add(NoFilterItem);
+                cmbFilterWeekDays.Items.Add(DayOfWeek.Monday);
+                cmbFilterWeekDays.Items.Add(DayOfWeek.Tuesday);
+                cmbFilterWeekDays.Items.Add(DayOfWeek.Wednesday);
+                cmbFilterWeekDays.Items.Add(DayOfWeek.Thursday);
+                cmbFilterWeekDays.Items.Add(DayOfWeek.Friday);
+                cmbFilterWeekDays.Items.Add(DayOfWeek.Saturday);
+                cmbFilterWeekDays.Items.Add(DayOfWeek.Sunday);
+                cmbFilterWeekDays.Items.Add("Weekdays");
+                cmbFilterWeekDays.Items.Add("Weekends");
+                cmbFilterWeekDays.SelectedIndex = 0;
+
+                cmbFilterPeriod.Items.Add(NoFilterItem);
+                cmbFilterPeriod.Items.Add("Last 7 days");
+                cmbFilterPeriod.Items.Add("Last 14 days");
+                cmbFilterPeriod.Items.Add("Last 4 weeks");
+                cmbFilterPeriod.Items.Add("Last 2 months");
+                cmbFilterPeriod.Items.Add("Last 3 months");
+                cmbFilterPeriod.Items.Add("Last 6 months");
+
+                cmbFilterWeekDays.SelectedIndexChanged += CmbFilter_SelectedIndexChanged;
+                cmbFilterPeriod.SelectedIndexChanged += CmbFilter_SelectedIndexChanged;
+                cmbFilterWeekDays.SelectedIndex = Properties.Settings.Default.IdxFilterWeekDays;
+                cmbFilterPeriod.SelectedIndex = Properties.Settings.Default.IdxFilterPeriod;
+                timFirstRefresh.Start();
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
+
+        private void TimFirstRefresh_Tick(object sender, EventArgs e)
+        {
+            timFirstRefresh.Stop();
+            var htmlPath = Path.Combine(Application.StartupPath, "chart.html");
+            webView.Source = new Uri(htmlPath);
+            webView.NavigationCompleted += (sender, e) => UpdateChartData();
+        }
+
+        private const string NoFilterItem = "-- All --";
 
         private void UpdateChartData()
         {
@@ -99,39 +122,47 @@ namespace GameStopwatch
             lblAvg.Text = count == 0 ? "/" : ((double)sum / count).ToString("0.0");
         }
 
-        private void CmbFilter_SelectedIndexChanged(object sender, EventArgs e)
+        private void CmbFilter_SelectedIndexChanged(object? sender, EventArgs e)
         {
             try
             {
-                if (cmbFilter.SelectedItem == null)
-                    bs.RemoveFilter();
-                else if (cmbFilter.SelectedIndex < 7)
-                    bs.Filter = $"Weekday = '{cmbFilter.SelectedItem}'";
-                else
-                {
-                    var selItem = cmbFilter.SelectedItem.ToString();
-                    if (selItem == "Weekdays")
-                        bs.Filter = "Weekday IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')";
-                    if (selItem == "Weekends")
-                        bs.Filter = "Weekday IN ('Saturday', 'Sunday')";
+                var filter = "";
+                cmbFilterPeriod.SelectedItem ??= NoFilterItem;
+                var selItem = cmbFilterPeriod.SelectedItem.ToString();
+                var d = DateTime.Today;
+                if (selItem == "Last 7 days")
+                    filter = $"Date >= '{(d.AddDays(-7)).ToShortDateString()}'";
+                if (selItem == "Last 14 days")
+                    filter = $"Date >= '{(d.AddDays(-14)).ToShortDateString()}'";
+                if (selItem == "Last 4 weeks")
+                    filter = $"Date >= '{(d.AddDays(-28)).ToShortDateString()}'";
+                if (selItem == "Last 2 months")
+                    filter = $"Date >= '{(d.AddMonths(-2)).ToShortDateString()}'";
+                if (selItem == "Last 3 months")
+                    filter = $"Date >= '{(d.AddMonths(-3)).ToShortDateString()}'";
+                if (selItem == "Last 6 months")
+                    filter = $"Date >= '{(d.AddMonths(-6)).ToShortDateString()}'";
 
-                    var d = DateTime.Today;
-                    if (selItem == "Last 7 days")
-                        bs.Filter = $"Date >= '{(d.AddDays(-7)).ToShortDateString()}'";
-                    if (selItem == "Last 14 days")
-                        bs.Filter = $"Date >= '{(d.AddDays(-14)).ToShortDateString()}'";
-                    if (selItem == "Last 4 weeks")
-                        bs.Filter = $"Date >= '{(d.AddDays(-28)).ToShortDateString()}'";
+                cmbFilterWeekDays.SelectedItem ??= NoFilterItem;
+                selItem = cmbFilterWeekDays.SelectedItem.ToString();
+                if (selItem != NoFilterItem)
+                {
+                    if (filter != "")
+                        filter += " AND ";
+                    if (cmbFilterWeekDays.SelectedIndex < 8)
+                        filter += $"Weekday = '{cmbFilterWeekDays.SelectedItem}'";
+                    if (selItem == "Weekdays")
+                        filter += "Weekday IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')";
+                    if (selItem == "Weekends")
+                        filter += "Weekday IN ('Saturday', 'Sunday')";
                 }
+                bs.Filter = filter;
+
                 RefreshStatusBar();
-                webView.Reload();
+                if (webView.Source != null)
+                    webView.Reload();
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
-        }
-
-        private void BtnFilterReset_Click(object sender, EventArgs e)
-        {
-            cmbFilter.SelectedItem = null;
         }
 
         private List<Ds.DateMinutesRow> addedZeroFilledRows;
@@ -166,6 +197,8 @@ namespace GameStopwatch
         {
             if (currentAdded)
                 RemoveTempRows(dateMinutes.FindByDate(frmMain.CurrentDate));
+            Properties.Settings.Default.IdxFilterPeriod = cmbFilterPeriod.SelectedIndex;
+            Properties.Settings.Default.IdxFilterWeekDays = cmbFilterWeekDays.SelectedIndex;
         }
     }
 }

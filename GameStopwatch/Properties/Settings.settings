@@ -14,5 +14,11 @@
     <Setting Name="LastBackup" Type="System.DateTime" Scope="User">
       <Value Profile="(Default)">2025-01-01</Value>
     </Setting>
+    <Setting Name="IdxFilterPeriod" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="IdxFilterWeekDays" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

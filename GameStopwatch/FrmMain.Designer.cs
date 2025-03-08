@@ -183,7 +183,6 @@
             // lblCurrentDate
             // 
             lblCurrentDate.AutoSize = true;
-            lblCurrentDate.ContextMenuStrip = ctxTimeTotal;
             lblCurrentDate.Font = new Font("Segoe UI", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             lblCurrentDate.Location = new Point(167, 92);
             lblCurrentDate.Name = "lblCurrentDate";

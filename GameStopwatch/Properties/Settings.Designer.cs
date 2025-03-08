@@ -69,5 +69,29 @@ namespace GameStopwatch.Properties {
                 this["LastBackup"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int IdxFilterPeriod {
+            get {
+                return ((int)(this["IdxFilterPeriod"]));
+            }
+            set {
+                this["IdxFilterPeriod"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int IdxFilterWeekDays {
+            get {
+                return ((int)(this["IdxFilterWeekDays"]));
+            }
+            set {
+                this["IdxFilterWeekDays"] = value;
+            }
+        }
     }
 }

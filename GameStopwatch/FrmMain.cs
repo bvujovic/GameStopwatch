@@ -24,13 +24,16 @@ namespace GameStopwatch
                 if (procAlreadyStarted = Process.GetProcesses().Count(it => it.ProcessName == Process.GetCurrentProcess().ProcessName) > 1)
                     Close();
 
+                Ds.ReadXml(dataSetFileName);
                 minutesBefore = Properties.Settings.Default.MinutesBefore;
                 CurrentDate = Properties.Settings.Default.CurrentDate;
+                //if (CurrentDate.Year < 2020 || (Ds.DateMinutes.Any() && CurrentDate <= Ds.DateMinutes.Max(it => it.Date)))
+                //    CurrentDate = DateTime.Today;
                 if (CurrentDate.Year < 2020)
                     CurrentDate = DateTime.Today;
+                while (Ds.DateMinutes.Count > 0 && CurrentDate <= Ds.DateMinutes.Max(it => it.Date))
+                    CurrentDate = CurrentDate.AddDays(1);
                 DisplayMinutes();
-
-                Ds.ReadXml(dataSetFileName);
 
                 cmbVoices.Items.Clear();
                 foreach (var v in speaker.Synth.GetInstalledVoices())
@@ -142,7 +145,6 @@ namespace GameStopwatch
             //    if (IsKeyPushedDown(k))
             //        System.Diagnostics.Debug.WriteLine(k);
 
-            //int minutes = (int)(DateTime.Now - gameStarted).TotalMinutes;
             int minutes = GetMinutes();
 
             // pauza: pocetak/kraj
@@ -197,7 +199,6 @@ namespace GameStopwatch
                     if (IsKeyPushedDown(x.Key))
                     {
                         x.Start = DateTime.Now;
-                        //speaker.Speak(SpeakerSounds.KeyPress);
                         PlayPressSound();
                     }
                 }
@@ -205,8 +206,6 @@ namespace GameStopwatch
                     // ako je vreme tajmera isteklo - pusti odgovarajuci zvuk
                     if ((DateTime.Now - x.Start.Value).TotalSeconds >= x.Secs)
                 {
-                    //synth.Speak(x.Sound);
-                    //speaker.Speak(SpeakerSounds.Shield);
                     speaker.Speak(x.Sound);
                     x.Start = null;
                 }
@@ -263,6 +262,8 @@ namespace GameStopwatch
                 gameStarted = DateTime.Now;
                 DisplayMinutes();
                 CurrentDate = DateTime.Today;
+                if (CurrentDate <= Ds.DateMinutes.Max(it => it.Date))
+                    CurrentDate = CurrentDate.AddDays(1);
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
