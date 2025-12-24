@@ -218,6 +218,7 @@
             Controls.Add(label1);
             Controls.Add(cmbVoices);
             Controls.Add(lblMinutes);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             Name = "FrmMain";
             StartPosition = FormStartPosition.CenterScreen;

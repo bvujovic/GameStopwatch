@@ -61,7 +61,8 @@ namespace GameStopwatch
 
                 cmbFilterWeekDays.SelectedIndexChanged += CmbFilter_SelectedIndexChanged;
                 cmbFilterPeriod.SelectedIndexChanged += CmbFilter_SelectedIndexChanged;
-                cmbFilterWeekDays.SelectedIndex = Properties.Settings.Default.IdxFilterWeekDays;
+                //B cmbFilterWeekDays.SelectedIndex = Properties.Settings.Default.IdxFilterWeekDays;
+                cmbFilterWeekDays.SelectedIndex = 0; // Default to NoFilterItem
                 cmbFilterPeriod.SelectedIndex = Properties.Settings.Default.IdxFilterPeriod;
                 timFirstRefresh.Start();
             }

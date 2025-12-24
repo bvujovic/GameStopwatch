@@ -10,4 +10,6 @@ Time spent in game is shown in table and chart form.
 ![Game Stopwatch - Past Values (statistics)](ScreenShots/FrmPastValues.png)
 
 ## TODO
+- [ ] Voice should be saved/remembered by name, not by index
+- [ ] Put new screenshots in README.md
 - [ ] Code refactoring
