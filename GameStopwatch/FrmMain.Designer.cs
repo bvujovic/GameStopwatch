@@ -67,7 +67,7 @@
             label2.AutoSize = true;
             label2.Location = new Point(15, 14);
             label2.Name = "label2";
-            label2.Size = new Size(127, 15);
+            label2.Size = new Size(128, 15);
             label2.TabIndex = 2;
             label2.Text = "Gaming Time (current)";
             // 
@@ -78,7 +78,7 @@
             label3.Cursor = Cursors.Hand;
             label3.Location = new Point(15, 78);
             label3.Name = "label3";
-            label3.Size = new Size(113, 15);
+            label3.Size = new Size(114, 15);
             label3.TabIndex = 5;
             label3.Text = "Gaming Time (total)";
             // 
@@ -86,19 +86,19 @@
             // 
             ctxTimeTotal.Items.AddRange(new ToolStripItem[] { tsmiResetTotalTime, tsmiChangeBeforeTime, tsmiCountInCurrent });
             ctxTimeTotal.Name = "ctxTimeTotal";
-            ctxTimeTotal.Size = new Size(222, 70);
+            ctxTimeTotal.Size = new Size(224, 70);
             // 
             // tsmiResetTotalTime
             // 
             tsmiResetTotalTime.Name = "tsmiResetTotalTime";
-            tsmiResetTotalTime.Size = new Size(221, 22);
+            tsmiResetTotalTime.Size = new Size(223, 22);
             tsmiResetTotalTime.Text = "Reset Total Time (New Date)";
             tsmiResetTotalTime.Click += TsmiResetTotalTime_Click;
             // 
             // tsmiChangeBeforeTime
             // 
             tsmiChangeBeforeTime.Name = "tsmiChangeBeforeTime";
-            tsmiChangeBeforeTime.Size = new Size(221, 22);
+            tsmiChangeBeforeTime.Size = new Size(223, 22);
             tsmiChangeBeforeTime.Text = "Change Before Time";
             tsmiChangeBeforeTime.Click += TsmiChangeBeforeTime_Click;
             // 
@@ -108,7 +108,7 @@
             tsmiCountInCurrent.CheckOnClick = true;
             tsmiCountInCurrent.CheckState = CheckState.Checked;
             tsmiCountInCurrent.Name = "tsmiCountInCurrent";
-            tsmiCountInCurrent.Size = new Size(221, 22);
+            tsmiCountInCurrent.Size = new Size(223, 22);
             tsmiCountInCurrent.Text = "Count in Current Time";
             tsmiCountInCurrent.CheckedChanged += TsmiCountInCurrent_CheckedChanged;
             // 

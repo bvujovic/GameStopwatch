@@ -10,4 +10,5 @@ Time spent in game is shown in table and chart form.
 ![Game Stopwatch - Past Values (statistics)](ScreenShots/FrmPastValues.png)
 
 ## TODO
+- [ ] Put as much settings into DataSet from Properties.Settings (LastBackup...)
 - [ ] Code refactoring

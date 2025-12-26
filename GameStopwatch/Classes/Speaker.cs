@@ -1,6 +1,6 @@
 ﻿using System.Speech.Synthesis;
 
-namespace GameStopwatch
+namespace GameStopwatch.Classes
 {
     //public enum SpeakerSounds
     //{

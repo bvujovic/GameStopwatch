@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using GameStopwatch.Classes;
+
 namespace GameStopwatch
 {
     public partial class FrmMain : Form
@@ -9,7 +11,7 @@ namespace GameStopwatch
             InitializeComponent();
         }
 
-        private const string dataSetFileName = "ds.xml";
+        //private const string dataSetFileName = "ds.xml";
 
         private const string backupFolder = "backup";
 
@@ -24,7 +26,8 @@ namespace GameStopwatch
                 if (procAlreadyStarted = Process.GetProcesses().Count(it => it.ProcessName == Process.GetCurrentProcess().ProcessName) > 1)
                     Close();
 
-                Ds.ReadXml(dataSetFileName);
+                //Ds.ReadXml(dataSetFileName);
+                Ds.ReadXml(Utils.GetDataSetFileName());
                 minutesBefore = Properties.Settings.Default.MinutesBefore;
                 CurrentDate = Properties.Settings.Default.CurrentDate;
                 //if (CurrentDate.Year < 2020 || (Ds.DateMinutes.Any() && CurrentDate <= Ds.DateMinutes.Max(it => it.Date)))
@@ -42,10 +45,11 @@ namespace GameStopwatch
 
                 if ((DateTime.Now - Properties.Settings.Default.LastBackup).TotalDays >= 7)
                 {
-                    Ds.WriteXml($"{backupFolder}/{DateTime.Now:yyyy.MM.dd_HH.mm}.xml");
+                    Ds.WriteXml(Utils.GetDataSetBackupFileName());
                     Properties.Settings.Default.LastBackup = DateTime.Now;
                 }
                 lblLastBackup.Text = Properties.Settings.Default.LastBackup.ToShortDateString();
+                LocationChanged += FrmMain_LocationChanged;
 
                 //synth.SpeakAsync("It's time");
 
@@ -70,7 +74,8 @@ namespace GameStopwatch
             Properties.Settings.Default.MinutesBefore = GetMinutesTotal();
             Properties.Settings.Default.CurrentDate = CurrentDate;
             Properties.Settings.Default.Save();
-            Ds.WriteXml(dataSetFileName);
+            //Ds.WriteXml(dataSetFileName);
+            Ds.WriteXml(Utils.GetDataSetFileName());
         }
 
         private void CmbVoices_SelectedIndexChanged(object sender, EventArgs e)
@@ -334,6 +339,13 @@ namespace GameStopwatch
                 });
             }
             catch (Exception ex) { MessageBox.Show(ex.Message, "Open Current Folder"); }
+        }
+
+        private void FrmMain_LocationChanged(object? sender, EventArgs e)
+        {
+            if (!IsHandleCreated || IsDisposed || Disposing || WindowState != FormWindowState.Normal)
+                return;
+            Utils.AddToLogFile($"Location changed to: {Location}", Environment.StackTrace);
         }
     }
 }
