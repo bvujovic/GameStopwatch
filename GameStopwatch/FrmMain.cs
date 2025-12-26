@@ -338,7 +338,7 @@ namespace GameStopwatch
                     FileName = Path.Combine(Directory.GetCurrentDirectory(), backupFolder)
                 });
             }
-            catch (Exception ex) { MessageBox.Show(ex.Message, "Open Current Folder"); }
+            catch (Exception ex) { MessageBox.Show(ex.Message, "Open Backup Folder"); }
         }
 
         private void FrmMain_LocationChanged(object? sender, EventArgs e)
