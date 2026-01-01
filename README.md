@@ -10,5 +10,7 @@ Time spent in game is shown in table and chart form.
 ![Game Stopwatch - Past Values (statistics)](ScreenShots/FrmPastValues.png)
 
 ## TODO
-- [ ] Put as much settings into DataSet from Properties.Settings (LastBackup...)
+- [ ] Put some settings into DataSet from Properties.Settings (LastBackup...)
+- [ ] Test if it's possible to change volume levels via some key presses
+- [x] Put new screenshots in README.md
 - [ ] Code refactoring

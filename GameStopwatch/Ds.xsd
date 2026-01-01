@@ -16,8 +16,16 @@
           <xs:complexType>
             <xs:sequence>
               <xs:element name="Date" msprop:Generator_ColumnPropNameInTable="DateColumn" msprop:Generator_ColumnPropNameInRow="Date" msprop:Generator_UserColumnName="Date" msprop:Generator_ColumnVarNameInTable="columnDate" type="xs:dateTime" />
-              <xs:element name="Weekday" msprop:Generator_ColumnPropNameInRow="Weekday" msprop:Generator_ColumnPropNameInTable="WeekdayColumn" msprop:Generator_ColumnVarNameInTable="columnWeekday" msprop:Generator_UserColumnName="Weekday" type="xs:string" minOccurs="0" />
+              <xs:element name="Weekday" msprop:Generator_UserColumnName="Weekday" msprop:Generator_ColumnPropNameInTable="WeekdayColumn" msprop:Generator_ColumnPropNameInRow="Weekday" msprop:Generator_ColumnVarNameInTable="columnWeekday" type="xs:string" minOccurs="0" />
               <xs:element name="Minutes" msprop:Generator_ColumnPropNameInTable="MinutesColumn" msprop:Generator_ColumnPropNameInRow="Minutes" msprop:Generator_UserColumnName="Minutes" msprop:Generator_ColumnVarNameInTable="columnMinutes" type="xs:int" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Settings" msprop:Generator_RowEvHandlerName="SettingsRowChangeEventHandler" msprop:Generator_RowDeletedName="SettingsRowDeleted" msprop:Generator_RowDeletingName="SettingsRowDeleting" msprop:Generator_RowEvArgName="SettingsRowChangeEvent" msprop:Generator_TablePropName="Settings" msprop:Generator_RowChangedName="SettingsRowChanged" msprop:Generator_RowChangingName="SettingsRowChanging" msprop:Generator_TableClassName="SettingsDataTable" msprop:Generator_RowClassName="SettingsRow" msprop:Generator_TableVarName="tableSettings" msprop:Generator_UserTableName="Settings">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Name" msprop:Generator_ColumnPropNameInRow="Name" msprop:Generator_ColumnPropNameInTable="NameColumn" msprop:Generator_ColumnVarNameInTable="columnName" msprop:Generator_UserColumnName="Name" type="xs:string" />
+              <xs:element name="Value" msprop:Generator_ColumnPropNameInRow="Value" msprop:Generator_ColumnPropNameInTable="ValueColumn" msprop:Generator_ColumnVarNameInTable="columnValue" msprop:Generator_UserColumnName="Value" type="xs:string" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>
@@ -26,6 +34,10 @@
     <xs:unique name="Constraint1" msdata:PrimaryKey="true">
       <xs:selector xpath=".//mstns:DateMinutes" />
       <xs:field xpath="mstns:Date" />
+    </xs:unique>
+    <xs:unique name="Settings_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//mstns:Settings" />
+      <xs:field xpath="mstns:Name" />
     </xs:unique>
   </xs:element>
 </xs:schema>

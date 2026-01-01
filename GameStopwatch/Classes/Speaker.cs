@@ -2,14 +2,6 @@
 
 namespace GameStopwatch.Classes
 {
-    //public enum SpeakerSounds
-    //{
-    //    KeyPress,
-    //    Munition,
-    //    Shield,
-    //    QuadDamage
-    //}
-
     public class Speaker
     {
         private readonly Queue<string> speakerSounds = [];
@@ -28,10 +20,6 @@ namespace GameStopwatch.Classes
             speakerSounds.Dequeue();
             if (speakerSounds.Count > 0)
                 synth.SpeakAsync(speakerSounds.Last().ToString());
-            //Speak2(speakerSounds.Last().ToString());
-
-            //if (speakerSounds.Count > 0)
-            //    synth.SpeakAsync(speakerSounds.Dequeue().ToString());
         }
 
         public void Speak(string text)
@@ -39,19 +27,24 @@ namespace GameStopwatch.Classes
             speakerSounds.Enqueue(text);
             if (synth.State != SynthesizerState.Speaking)
                 synth.SpeakAsync(text);
-            //Speak2(text);
-
-            //if (synth.State == SynthesizerState.Speaking)
-            //    speakerSounds.Enqueue(text);
-            //else
-            //    synth.SpeakAsync(text);
         }
 
-        //public void Speak(SpeakerSounds sound)
+        //public enum SpeakerSounds
         //{
-        //    if (speakerSounds.Count > 0 && speakerSounds.Last() == sound.ToString())
-        //        return;
-        //    Speak(sound.ToString());
+        //    KeyPress,
+        //    Munition,
+        //    Shield,
+        //    QuadDamage
         //}
+
+        //* Save sound to a file (ChatGPT)
+        //using SpeechSynthesizer synth = new();
+        //synth.SelectVoiceByHints(VoiceGender.Neutral); // Set voice to male
+        //synth.Rate = 1; // Set the speed
+        //synth.Volume = 100; // Set volume to 100%
+        //string outputFilePath = "shield.wav";
+        //synth.SetOutputToWaveFile(outputFilePath);
+        //synth.Speak("SHIELD!");
+        //Console.WriteLine($"Speech saved to {outputFilePath}");
     }
 }

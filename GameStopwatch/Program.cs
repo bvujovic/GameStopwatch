@@ -17,7 +17,6 @@ namespace GameStopwatch
             }
             catch (Exception ex)
             {
-                //File.AppendAllText("error.log", $"{DateTime.Now}: {ex.Message}\n{ex.StackTrace}\n\n");
                 Classes.Utils.AddToLogFile(ex.Message, ex.StackTrace);
             }
         }

@@ -11,10 +11,6 @@ namespace GameStopwatch
             InitializeComponent();
         }
 
-        //private const string dataSetFileName = "ds.xml";
-
-        private const string backupFolder = "backup";
-
         public Ds Ds { get; set; } = new Ds();
 
         private bool procAlreadyStarted = false;
@@ -26,42 +22,45 @@ namespace GameStopwatch
                 if (procAlreadyStarted = Process.GetProcesses().Count(it => it.ProcessName == Process.GetCurrentProcess().ProcessName) > 1)
                     Close();
 
-                //Ds.ReadXml(dataSetFileName);
                 Ds.ReadXml(Utils.GetDataSetFileName());
-                minutesBefore = Properties.Settings.Default.MinutesBefore;
-                CurrentDate = Properties.Settings.Default.CurrentDate;
-                //if (CurrentDate.Year < 2020 || (Ds.DateMinutes.Any() && CurrentDate <= Ds.DateMinutes.Max(it => it.Date)))
-                //    CurrentDate = DateTime.Today;
+                //minutesBefore = Properties.Settings.Default.MinutesBefore;
+                minutesBefore = Ds.Settings.ReadInt(nameof(minutesBefore), 0, x => x >= 0 && x <= 24 * 60);
+                //CurrentDate = Properties.Settings.Default.CurrentDate;
+                CurrentDate = DateTime.Parse(
+                    Ds.Settings.ReadString(nameof(CurrentDate), DateTime.MinValue.ToString())!);
                 if (CurrentDate.Year < 2020)
                     CurrentDate = DateTime.Today;
                 while (Ds.DateMinutes.Count > 0 && CurrentDate <= Ds.DateMinutes.Max(it => it.Date))
                     CurrentDate = CurrentDate.AddDays(1);
                 DisplayMinutes();
 
+                var selectedVoice = Ds.Settings.ReadString(nameof(cmbVoices)); // "Voice" "Microsoft Zira Desktop"
+                int idxVoice = -1, i = 0;
                 cmbVoices.Items.Clear();
                 foreach (var v in speaker.Synth.GetInstalledVoices())
+                {
                     cmbVoices.Items.Add(v.VoiceInfo.Name);
-                cmbVoices.SelectedIndex = Properties.Settings.Default.IdxVoice;
-
-                if ((DateTime.Now - Properties.Settings.Default.LastBackup).TotalDays >= 7)
+                    if (selectedVoice != null && selectedVoice == v.VoiceInfo.Name)
+                        idxVoice = i;
+                    i++;
+                }
+                if (idxVoice != -1)
+                    cmbVoices.SelectedIndex = idxVoice;
+                else
+                    MessageBox.Show($"Voice \"{selectedVoice}\" is not installed.");
+                //cmbVoices.SelectedIndex = Properties.Settings.Default.IdxVoice;
+                //cmbVoices.SelectedItem = "Microsoft Zirah Desktop";
+                var dtLastBackup = Utils.GetLastBackupDate();
+                //if ((DateTime.Now - Properties.Settings.Default.LastBackup).TotalDays >= 7)
+                if (!dtLastBackup.HasValue || (DateTime.Now - dtLastBackup.Value).TotalDays >= 7)
                 {
                     Ds.WriteXml(Utils.GetDataSetBackupFileName());
-                    Properties.Settings.Default.LastBackup = DateTime.Now;
+                    //Properties.Settings.Default.LastBackup = DateTime.Now;
                 }
-                lblLastBackup.Text = Properties.Settings.Default.LastBackup.ToShortDateString();
+                //lblLastBackup.Text = Properties.Settings.Default.LastBackup.ToShortDateString();
+                lblLastBackup.Text = Utils.GetLastBackupDate()?.ToShortDateString();
                 LocationChanged += FrmMain_LocationChanged;
-
-                //synth.SpeakAsync("It's time");
-
-                //* Save sound to a file (ChatGPT)
-                //using SpeechSynthesizer synth = new();
-                //synth.SelectVoiceByHints(VoiceGender.Neutral); // Set voice to male
-                //synth.Rate = 1; // Set the speed
-                //synth.Volume = 100; // Set volume to 100%
-                //string outputFilePath = "shield.wav";
-                //synth.SetOutputToWaveFile(outputFilePath);
-                //synth.Speak("SHIELD!");
-                //Console.WriteLine($"Speech saved to {outputFilePath}");
+                prevLocation = Location;
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
@@ -70,11 +69,13 @@ namespace GameStopwatch
         {
             if (procAlreadyStarted)
                 return;
-            Properties.Settings.Default.IdxVoice = cmbVoices.SelectedIndex;
-            Properties.Settings.Default.MinutesBefore = GetMinutesTotal();
-            Properties.Settings.Default.CurrentDate = CurrentDate;
-            Properties.Settings.Default.Save();
-            //Ds.WriteXml(dataSetFileName);
+            //Properties.Settings.Default.IdxVoice = cmbVoices.SelectedIndex;
+            Ds.Settings.WriteSetting(nameof(cmbVoices), (string?)cmbVoices.SelectedItem);
+            //Properties.Settings.Default.MinutesBefore = GetMinutesTotal();
+            Ds.Settings.WriteSetting(nameof(minutesBefore), GetMinutesTotal().ToString());
+            //Properties.Settings.Default.CurrentDate = CurrentDate;
+            Ds.Settings.WriteSetting(nameof(CurrentDate), CurrentDate.ToString());
+            //Properties.Settings.Default.Save();
             Ds.WriteXml(Utils.GetDataSetFileName());
         }
 
@@ -143,6 +144,15 @@ namespace GameStopwatch
         private void SpeakGameTime(int min)
             => speaker.Speak(MinToString(min));
 
+        //[DllImport("user32.dll")]
+        //static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+        //// Virtual Key Codes
+        //private const int VK_VOLUME_MUTE = 0xAD;
+        //private const int VK_VOLUME_DOWN = 0xAE;
+        //private const int VK_VOLUME_UP = 0xAF;
+        //private const uint KEYEVENTF_EXTENDEDKEY = 0x0001;
+        //private const uint KEYEVENTF_KEYUP = 0x0002;
+
         private void Tim_Tick(object sender, EventArgs e)
         {
             // TEST
@@ -151,6 +161,17 @@ namespace GameStopwatch
             //        System.Diagnostics.Debug.WriteLine(k);
 
             int minutes = GetMinutes();
+
+            //if (IsKeyPushedDown(Keys.Oemcomma)) // turn down system volume
+            //{
+            //    keybd_event((byte)VK_VOLUME_DOWN, 0, KEYEVENTF_EXTENDEDKEY, UIntPtr.Zero); // Key Press
+            //    keybd_event((byte)VK_VOLUME_DOWN, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, UIntPtr.Zero); // Key Release
+            //}
+            //else if (IsKeyPushedDown(Keys.OemPeriod)) // turn up volume
+            //{
+            //    keybd_event((byte)VK_VOLUME_UP, 0, KEYEVENTF_EXTENDEDKEY, UIntPtr.Zero); // Key Press
+            //    keybd_event((byte)VK_VOLUME_UP, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, UIntPtr.Zero); // Key Release
+            //}
 
             // pauza: pocetak/kraj
             if (IsKeyPushedDown(Keys.Escape))
@@ -335,17 +356,23 @@ namespace GameStopwatch
                 Process.Start(new ProcessStartInfo()
                 {
                     UseShellExecute = true,
-                    FileName = Path.Combine(Directory.GetCurrentDirectory(), backupFolder)
+                    //FileName = Path.Combine(Directory.GetCurrentDirectory(), backupFolder)
+                    FileName = Utils.GetDataSetBackupFolder()
                 });
             }
             catch (Exception ex) { MessageBox.Show(ex.Message, "Open Backup Folder"); }
         }
 
+        private Point prevLocation = new();
+
         private void FrmMain_LocationChanged(object? sender, EventArgs e)
         {
             if (!IsHandleCreated || IsDisposed || Disposing || WindowState != FormWindowState.Normal)
                 return;
-            Utils.AddToLogFile($"Location changed to: {Location}", Environment.StackTrace);
+            //Utils.AddToLogFile($"Location changed to: {Location}", Environment.StackTrace);
+            //if (Location != prevLocation)
+            if (Environment.StackTrace.Contains("PeekMessage"))
+                Location = prevLocation;
         }
     }
 }

@@ -30,12 +30,36 @@
             return Path.Combine(folders[idxFolder], dataSetFileName);
         }
 
+        public static string GetDataSetBackupFolder()
+        {
+            return Path.Combine(folders[idxFolder], backupFolder);
+        }
+
         public static string GetDataSetBackupFileName()
         {
-            //if (idxFolder == -1)
-            //    SetOneDriveAppFolder();
-            //Ds.WriteXml($"{backupFolder}/{DateTime.Now:yyyy.MM.dd_HH.mm}.xml");
-            return Path.Combine(folders[idxFolder], backupFolder, $"{DateTime.Now:yyyy.MM.dd_HH.mm}_ds.xml");
+            return Path.Combine(GetDataSetBackupFolder(), $"{DateTime.Now:yyyy.MM.dd_HH.mm}_ds.xml");
+        }
+
+        // Exctract last date from files in `backupFolder`
+        public static DateTime? GetLastBackupDate()
+        {
+            string backupPath = GetDataSetBackupFolder();
+            if (!Directory.Exists(backupPath))
+                return null;
+            var files = Directory.GetFiles(backupPath, "????.??.??_??.??_ds.xml");
+            DateTime? lastDate = null;
+            foreach (var file in files)
+            {
+                var fileName = Path.GetFileName(file);
+                var datePart = fileName.Substring(0, "yyyy.MM.dd_HH.mm".Length);
+                if (DateTime.TryParseExact(datePart, "yyyy.MM.dd_HH.mm", null
+                    , System.Globalization.DateTimeStyles.None, out DateTime dt))
+                {
+                    if (lastDate == null || dt > lastDate)
+                        lastDate = dt;
+                }
+            }
+            return lastDate;
         }
 
         public static void AddToLogFile(string message, string? stackTrace)
