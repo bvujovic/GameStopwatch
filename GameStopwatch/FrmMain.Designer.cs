@@ -34,6 +34,7 @@
             Label label3;
             Label label4;
             Label label5;
+            Label label6;
             ctxTimeTotal = new ContextMenuStrip(components);
             tsmiResetTotalTime = new ToolStripMenuItem();
             tsmiChangeBeforeTime = new ToolStripMenuItem();
@@ -45,11 +46,15 @@
             btnPastValues = new Button();
             lblCurrentDate = new Label();
             lblLastBackup = new Label();
+            lblBatteryInfo = new Label();
+            timBattery = new System.Windows.Forms.Timer(components);
+            timDelay = new System.Windows.Forms.Timer(components);
             label1 = new Label();
             label2 = new Label();
             label3 = new Label();
             label4 = new Label();
             label5 = new Label();
+            label6 = new Label();
             ctxTimeTotal.SuspendLayout();
             SuspendLayout();
             // 
@@ -76,7 +81,7 @@
             label3.AutoSize = true;
             label3.ContextMenuStrip = ctxTimeTotal;
             label3.Cursor = Cursors.Hand;
-            label3.Location = new Point(15, 78);
+            label3.Location = new Point(15, 70);
             label3.Name = "label3";
             label3.Size = new Size(114, 15);
             label3.TabIndex = 5;
@@ -116,7 +121,7 @@
             // 
             label4.AutoSize = true;
             label4.ContextMenuStrip = ctxTimeTotal;
-            label4.Location = new Point(170, 78);
+            label4.Location = new Point(170, 70);
             label4.Name = "label4";
             label4.Size = new Size(74, 15);
             label4.TabIndex = 8;
@@ -125,11 +130,20 @@
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(15, 142);
+            label5.Location = new Point(15, 126);
             label5.Name = "label5";
             label5.Size = new Size(70, 15);
             label5.TabIndex = 10;
             label5.Text = "Last Backup";
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Location = new Point(15, 182);
+            label6.Name = "label6";
+            label6.Size = new Size(110, 15);
+            label6.TabIndex = 11;
+            label6.Text = "Battery Information";
             // 
             // tim
             // 
@@ -164,7 +178,7 @@
             lblMinutesTotal.ContextMenuStrip = ctxTimeTotal;
             lblMinutesTotal.Cursor = Cursors.Hand;
             lblMinutesTotal.Font = new Font("Segoe UI", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            lblMinutesTotal.Location = new Point(12, 92);
+            lblMinutesTotal.Location = new Point(12, 84);
             lblMinutesTotal.Name = "lblMinutesTotal";
             lblMinutesTotal.Size = new Size(104, 30);
             lblMinutesTotal.TabIndex = 4;
@@ -172,7 +186,7 @@
             // 
             // btnPastValues
             // 
-            btnPastValues.Location = new Point(167, 160);
+            btnPastValues.Location = new Point(167, 144);
             btnPastValues.Name = "btnPastValues";
             btnPastValues.Size = new Size(102, 23);
             btnPastValues.TabIndex = 6;
@@ -184,7 +198,7 @@
             // 
             lblCurrentDate.AutoSize = true;
             lblCurrentDate.Font = new Font("Segoe UI", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            lblCurrentDate.Location = new Point(167, 92);
+            lblCurrentDate.Location = new Point(167, 84);
             lblCurrentDate.Name = "lblCurrentDate";
             lblCurrentDate.Size = new Size(21, 30);
             lblCurrentDate.TabIndex = 7;
@@ -195,18 +209,43 @@
             lblLastBackup.AutoSize = true;
             lblLastBackup.Cursor = Cursors.Hand;
             lblLastBackup.Font = new Font("Segoe UI", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            lblLastBackup.Location = new Point(12, 156);
+            lblLastBackup.Location = new Point(12, 140);
             lblLastBackup.Name = "lblLastBackup";
             lblLastBackup.Size = new Size(117, 30);
             lblLastBackup.TabIndex = 9;
             lblLastBackup.Text = "2025-02-05";
             lblLastBackup.Click += LblLastBackup_Click;
             // 
+            // lblBatteryInfo
+            // 
+            lblBatteryInfo.AutoSize = true;
+            lblBatteryInfo.Cursor = Cursors.Hand;
+            lblBatteryInfo.Font = new Font("Segoe UI", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblBatteryInfo.Location = new Point(15, 196);
+            lblBatteryInfo.Name = "lblBatteryInfo";
+            lblBatteryInfo.Size = new Size(21, 30);
+            lblBatteryInfo.TabIndex = 12;
+            lblBatteryInfo.Text = "/";
+            lblBatteryInfo.Click += LblBatteryInfo_Click;
+            // 
+            // timBattery
+            // 
+            timBattery.Enabled = true;
+            timBattery.Interval = 60000;
+            timBattery.Tick += TimBattery_Tick;
+            // 
+            // timDelay
+            // 
+            timDelay.Interval = 2000;
+            timDelay.Tick += TimDelay_Tick;
+            // 
             // FrmMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(340, 192);
+            ClientSize = new Size(340, 235);
+            Controls.Add(lblBatteryInfo);
+            Controls.Add(label6);
             Controls.Add(label5);
             Controls.Add(lblLastBackup);
             Controls.Add(label4);
@@ -221,8 +260,9 @@
             FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             Name = "FrmMain";
-            StartPosition = FormStartPosition.CenterScreen;
+            StartPosition = FormStartPosition.Manual;
             Text = "Game Stopwatch";
+            Activated += FrmMain_Activated;
             FormClosing += Form1_FormClosing;
             Load += Form1_Load;
             ctxTimeTotal.ResumeLayout(false);
@@ -244,5 +284,8 @@
         private Button btnPastValues;
         private Label lblCurrentDate;
         private Label lblLastBackup;
+        private Label lblBatteryInfo;
+        private System.Windows.Forms.Timer timBattery;
+        private System.Windows.Forms.Timer timDelay;
     }
 }

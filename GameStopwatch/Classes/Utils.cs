@@ -64,6 +64,7 @@
 
         public static void AddToLogFile(string message, string? stackTrace)
         {
+            SetOneDriveAppFolder();
             File.AppendAllText(Path.Combine(folders[idxFolder], "messages.log")
                 , $"{DateTime.Now}: {message}\n{stackTrace}\n\n");
         }

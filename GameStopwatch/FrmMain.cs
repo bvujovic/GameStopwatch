@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using GameStopwatch.Classes;
+using System.ComponentModel;
+using BvWinFormsLib;
 
 namespace GameStopwatch
 {
@@ -11,9 +13,12 @@ namespace GameStopwatch
             InitializeComponent();
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Ds Ds { get; set; } = new Ds();
 
         private bool procAlreadyStarted = false;
+
+        //private BatteryStatus batteryStatus = new BatteryStatus();
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -23,6 +28,16 @@ namespace GameStopwatch
                     Close();
 
                 Ds.ReadXml(Utils.GetDataSetFileName());
+
+                // Set position of the form - Copy of code from KeenTimeKeeper!!
+                var a = Screen.GetWorkingArea(this);
+                var xaxis = Ds.Settings.ReadString("XAxis", nameof(Left));
+                var left = Ds.Settings.ReadInt(nameof(Left), Left, it => it >= 0 && it < a.Width);
+                Left = (xaxis == nameof(Left)) ? left : (a.Width - left - Width);
+                var yaxis = Ds.Settings.ReadString("YAxis", nameof(Top));
+                var top = Ds.Settings.ReadInt(nameof(Top), Top, it => it >= 0 && it <= a.Height);
+                Top = (yaxis == nameof(Top)) ? top : (a.Height - top - Height);
+
                 //minutesBefore = Properties.Settings.Default.MinutesBefore;
                 minutesBefore = Ds.Settings.ReadInt(nameof(minutesBefore), 0, x => x >= 0 && x <= 24 * 60);
                 //CurrentDate = Properties.Settings.Default.CurrentDate;
@@ -61,6 +76,7 @@ namespace GameStopwatch
                 lblLastBackup.Text = Utils.GetLastBackupDate()?.ToShortDateString();
                 LocationChanged += FrmMain_LocationChanged;
                 prevLocation = Location;
+                DisplayBatteryInfo(true);
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
@@ -70,12 +86,26 @@ namespace GameStopwatch
             if (procAlreadyStarted)
                 return;
             //Properties.Settings.Default.IdxVoice = cmbVoices.SelectedIndex;
-            Ds.Settings.WriteSetting(nameof(cmbVoices), (string?)cmbVoices.SelectedItem);
             //Properties.Settings.Default.MinutesBefore = GetMinutesTotal();
-            Ds.Settings.WriteSetting(nameof(minutesBefore), GetMinutesTotal().ToString());
             //Properties.Settings.Default.CurrentDate = CurrentDate;
-            Ds.Settings.WriteSetting(nameof(CurrentDate), CurrentDate.ToString());
             //Properties.Settings.Default.Save();
+            Ds.Settings.WriteSetting(nameof(cmbVoices), (string?)cmbVoices.SelectedItem);
+            Ds.Settings.WriteSetting(nameof(minutesBefore), GetMinutesTotal().ToString());
+            Ds.Settings.WriteSetting(nameof(CurrentDate), CurrentDate.ToString());
+
+            //!! Copy of code from KeenTimeKeeper
+            // Save position of the form - save distances from closer edges of the screen
+            if (WindowState == FormWindowState.Normal)
+            {
+                var a = Screen.GetWorkingArea(this);
+                var right = a.X + a.Width - Right;
+                Ds.Settings.WriteSetting(nameof(Left), (Math.Min(Left, right)).ToString());
+                Ds.Settings.WriteSetting("XAxis", (Left < right ? nameof(Left) : nameof(Right)));
+
+                var bottom = a.Y + a.Height - Bottom;
+                Ds.Settings.WriteSetting(nameof(Top), (Math.Min(Top, bottom)).ToString());
+                Ds.Settings.WriteSetting("YAxis", (Top < bottom ? nameof(Top) : nameof(Bottom)));
+            }
             Ds.WriteXml(Utils.GetDataSetFileName());
         }
 
@@ -144,15 +174,6 @@ namespace GameStopwatch
         private void SpeakGameTime(int min)
             => speaker.Speak(MinToString(min));
 
-        //[DllImport("user32.dll")]
-        //static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
-        //// Virtual Key Codes
-        //private const int VK_VOLUME_MUTE = 0xAD;
-        //private const int VK_VOLUME_DOWN = 0xAE;
-        //private const int VK_VOLUME_UP = 0xAF;
-        //private const uint KEYEVENTF_EXTENDEDKEY = 0x0001;
-        //private const uint KEYEVENTF_KEYUP = 0x0002;
-
         private void Tim_Tick(object sender, EventArgs e)
         {
             // TEST
@@ -161,17 +182,6 @@ namespace GameStopwatch
             //        System.Diagnostics.Debug.WriteLine(k);
 
             int minutes = GetMinutes();
-
-            //if (IsKeyPushedDown(Keys.Oemcomma)) // turn down system volume
-            //{
-            //    keybd_event((byte)VK_VOLUME_DOWN, 0, KEYEVENTF_EXTENDEDKEY, UIntPtr.Zero); // Key Press
-            //    keybd_event((byte)VK_VOLUME_DOWN, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, UIntPtr.Zero); // Key Release
-            //}
-            //else if (IsKeyPushedDown(Keys.OemPeriod)) // turn up volume
-            //{
-            //    keybd_event((byte)VK_VOLUME_UP, 0, KEYEVENTF_EXTENDEDKEY, UIntPtr.Zero); // Key Press
-            //    keybd_event((byte)VK_VOLUME_UP, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, UIntPtr.Zero); // Key Release
-            //}
 
             // pauza: pocetak/kraj
             if (IsKeyPushedDown(Keys.Escape))
@@ -239,6 +249,7 @@ namespace GameStopwatch
         }
 
         private DateTime currentDate;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public DateTime CurrentDate
         {
             get { return currentDate; }
@@ -351,16 +362,16 @@ namespace GameStopwatch
 
         private void LblLastBackup_Click(object sender, EventArgs e)
         {
-            try
-            {
-                Process.Start(new ProcessStartInfo()
+            if (e is MouseEventArgs me && me.Button == MouseButtons.Left)
+                try
                 {
-                    UseShellExecute = true,
-                    //FileName = Path.Combine(Directory.GetCurrentDirectory(), backupFolder)
-                    FileName = Utils.GetDataSetBackupFolder()
-                });
-            }
-            catch (Exception ex) { MessageBox.Show(ex.Message, "Open Backup Folder"); }
+                    Process.Start(new ProcessStartInfo()
+                    {
+                        UseShellExecute = true,
+                        FileName = Utils.GetDataSetBackupFolder()
+                    });
+                }
+                catch (Exception ex) { MessageBox.Show(ex.Message, "Open Backup Folder"); }
         }
 
         private Point prevLocation = new();
@@ -369,10 +380,88 @@ namespace GameStopwatch
         {
             if (!IsHandleCreated || IsDisposed || Disposing || WindowState != FormWindowState.Normal)
                 return;
-            //Utils.AddToLogFile($"Location changed to: {Location}", Environment.StackTrace);
-            //if (Location != prevLocation)
             if (Environment.StackTrace.Contains("PeekMessage"))
                 Location = prevLocation;
+        }
+
+        private void DisplayBatteryInfo(bool firstCall = false)
+        {
+            var isCharging = SystemInformation.PowerStatus.PowerLineStatus == PowerLineStatus.Online;
+            var batteryPerc = SystemInformation.PowerStatus.BatteryLifePercent * 100;
+            var minLifeRemaining = SystemInformation.PowerStatus.BatteryLifeRemaining / 60;
+
+            lblBatteryInfo.Text = BatteryStatus.ToString();
+            //lblBatteryInfo.Text = batteryPerc + "%, " +
+            //    (isCharging ? "charging..." : $"Remaining: {minLifeRemaining / 60}h {minLifeRemaining % 60}min");
+
+            //TODO maybe I should have this in KTK or maybe both apps can have this functionality
+            //if (!isCharging && batteryPerc <= batteryPercCalls[idxBatteryPercCalls] && !firstCall)
+            //{
+            //    speaker.Speak(batteryPerc + " percent");
+            //    idxBatteryPercCalls++;
+            //}
+            if (!isCharging && !firstCall)
+            {
+                for (int i = batteryPercCalls.Length - 1; i >= 0; i--)
+                    if (batteryPerc < batteryPercCalls[i])
+                    {
+                        idxBatteryPercCalls = i;
+                    }
+                speaker.Speak(batteryPerc + " percent");
+                //idxBatteryPercCalls++;
+            }
+
+            if (isCharging)
+                for (int i = 0; i < batteryPercCalls.Length; i++)
+                    if (batteryPerc >= batteryPercCalls[i])
+                    {
+                        idxBatteryPercCalls = i;
+                        break;
+                    }
+            //if (isCharging && batteryPerc >= batteryPercCall)
+            //    batteryPercCall = batteryPercCallStart;
+
+            //if (!isCharging && batteryPerc <= batteryPercCall && !firstCall && batteryPerc % batteryPercStep == 0)
+            //{
+            //    speaker.Speak(batteryPerc + " percent");
+            //    batteryPercCall -= batteryPercStep;
+            //}
+            //if (isCharging && batteryPerc >= batteryPercCall)
+            //    batteryPercCall = batteryPercCallStart;
+        }
+
+        private readonly int[] batteryPercCalls = [90, 85, 80, 75, 70, 65, 60];
+        private int idxBatteryPercCalls = 0;
+
+        //private const int batteryPercStep = 5;
+        //private const int batteryPercCallStart = 90;
+        //private int batteryPercCall = batteryPercCallStart;
+
+        private void TimBattery_Tick(object sender, EventArgs e)
+            => DisplayBatteryInfo();
+
+        private void LblBatteryInfo_Click(object sender, EventArgs e)
+        {
+            if (e is MouseEventArgs me && me.Button == MouseButtons.Left)
+                DisplayBatteryInfo();
+        }
+
+        private void FrmMain_Activated(object sender, EventArgs e)
+        {
+            //Debug.WriteLine("FrmMain_Activated");
+            //if (!timDelay.Enabled)
+            //    timDelay.Start();
+            timDelay.Enabled = true;
+        }
+
+        //TODO First time Activated is executed, param for DisplayBatteryInfo() should be true
+
+        private void TimDelay_Tick(object sender, EventArgs e)
+        {
+            timDelay.Stop();
+            DisplayBatteryInfo(false);
+            DisplayMinutes();
+            Refresh();
         }
     }
 }

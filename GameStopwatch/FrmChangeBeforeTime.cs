@@ -1,4 +1,6 @@
-﻿namespace GameStopwatch
+﻿using System.ComponentModel;
+
+namespace GameStopwatch
 {
     public partial class FrmChangeBeforeTime : Form
     {
@@ -9,6 +11,7 @@
             numMinutesBefore.Select(0, 10);
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int MinutesBefore
         {
             get { return (int)numMinutesBefore.Value; }

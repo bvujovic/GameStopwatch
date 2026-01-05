@@ -10,7 +10,8 @@ Time spent in game is shown in table and chart form.
 ![Game Stopwatch - Past Values (statistics)](ScreenShots/FrmPastValues.png)
 
 ## TODO
-- [ ] Put some settings into DataSet from Properties.Settings (LastBackup...)
-- [ ] Test if it's possible to change volume levels via some key presses
-- [x] Put new screenshots in README.md
+- [x] Change .NET version 8->10 of the main project. Add projects: BvWinFormsLib and Tests (xunit).
+- [x] Save&Load main window position
+- [x] Bugfix: Main window doesn't display current data when I exit the game. Try calling Display...() on Form.Active or similar event.
+- [x] Notify user if the battery on laptop is less then xy%
 - [ ] Code refactoring
